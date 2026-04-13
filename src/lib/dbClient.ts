@@ -11,26 +11,28 @@ export interface AnalysisRecord {
 }
 
 export interface FullAnalysisRecord extends AnalysisRecord {
-  text_length: number;
-  data: WELMatch[];
+text_length: number;
+data: WELMatch[];
+sourceText?: string;
 }
 
 export async function saveAnalysis(payload: {
-  sourceType: InputMode;
-  sourceRef?: string;
-  textLength: number;
-  totalMatches: number;
-  confirmedWel: number;
-  data: WELMatch[];
-  sessionId?: string;
+sourceType: InputMode;
+sourceRef?: string;
+textLength: number;
+totalMatches: number;
+confirmedWel: number;
+data: WELMatch[];
+sessionId?: string;
+sourceText?: string;
 }): Promise<{ id: number }> {
-  const res = await fetch('/api/db/save', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error(`Failed to save analysis: ${res.status}`);
-  return res.json();
+const res = await fetch('/api/db/save', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(payload),
+});
+if (!res.ok) throw new Error(`Failed to save analysis: ${res.status}`);
+return res.json();
 }
 
 export async function listAnalyses(): Promise<AnalysisRecord[]> {

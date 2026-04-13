@@ -253,17 +253,18 @@ export default function App() {
 
     setIsAnalyzing(false);
 
-    if (!abortRef.current) {
-      saveAnalysis({
-        sourceType: meta.sourceType,
-        sourceRef: meta.sourceRef,
-        textLength: text.length,
-        totalMatches: finalMatches.length,
-        confirmedWel,
-        data: finalMatches,
-        sessionId: sid,
-      }).catch(console.error);
-    }
+if (!abortRef.current) {
+saveAnalysis({
+sourceType: meta.sourceType,
+sourceRef: meta.sourceRef,
+textLength: text.length,
+totalMatches: finalMatches.length,
+confirmedWel,
+data: finalMatches,
+sessionId: sid,
+sourceText: text,
+}).catch(console.error);
+}
   };
 
   const handleLoadHistory = (loadedMatches: WELMatch[], text: string, sessionId: string) => {

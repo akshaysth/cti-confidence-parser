@@ -13,17 +13,24 @@ function getDB() {
   if (!_db) {
     _db = new Database(DB_PATH);
     _db.exec(`
-      CREATE TABLE IF NOT EXISTS analyses (
-        id           INTEGER PRIMARY KEY AUTOINCREMENT,
-        created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
-        source_type  TEXT    NOT NULL,
-        source_ref   TEXT,
-        text_length  INTEGER NOT NULL DEFAULT 0,
-        total_matches INTEGER NOT NULL DEFAULT 0,
-        confirmed_wel INTEGER NOT NULL DEFAULT 0,
-        data         TEXT    NOT NULL
-      )
-    `);
+CREATE TABLE IF NOT EXISTS analyses (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+created_at TEXT NOT NULL DEFAULT (datetime('now')),
+source_type TEXT NOT NULL,
+source_ref TEXT,
+text_length INTEGER NOT NULL DEFAULT 0,
+total_matches INTEGER NOT NULL DEFAULT 0,
+confirmed_wel INTEGER NOT NULL DEFAULT 0,
+data TEXT NOT NULL,
+source_text TEXT
+)
+`);
+    // Migration: add source_text column if it doesn't exist
+    try {
+      _db.exec(`ALTER TABLE analyses ADD COLUMN source_text TEXT`);
+    } catch {
+      // Column already exists, ignore error
+    }
   }
   return _db;
 }
@@ -63,28 +70,30 @@ export default defineConfig({
           try {
             const db = getDB();
 
-            if (route === '/save' && req.method === 'POST') {
-              const body = await readBody(req) as {
-                sourceType: string;
-                sourceRef?: string;
-                textLength: number;
-                totalMatches: number;
-                confirmedWel: number;
-                data: unknown;
-              };
-              const result = db.prepare(`
-                INSERT INTO analyses
-                  (source_type, source_ref, text_length, total_matches, confirmed_wel, data)
-                VALUES (?, ?, ?, ?, ?, ?)
-              `).run(
-                body.sourceType,
-                body.sourceRef ?? null,
-                body.textLength,
-                body.totalMatches,
-                body.confirmedWel,
-                JSON.stringify(body.data),
-              );
-              sendJSON(res, 200, { id: result.lastInsertRowid });
+if (route === '/save' && req.method === 'POST') {
+const body = await readBody(req) as {
+sourceType: string;
+sourceRef?: string;
+textLength: number;
+totalMatches: number;
+confirmedWel: number;
+data: unknown;
+sourceText?: string;
+};
+const result = db.prepare(`
+INSERT INTO analyses
+(source_type, source_ref, text_length, total_matches, confirmed_wel, data, source_text)
+VALUES (?, ?, ?, ?, ?, ?, ?)
+`).run(
+body.sourceType,
+body.sourceRef ?? null,
+body.textLength,
+body.totalMatches,
+body.confirmedWel,
+JSON.stringify(body.data),
+body.sourceText ?? null,
+);
+sendJSON(res, 200, { id: result.lastInsertRowid });
 
             } else if (route === '/list' && req.method === 'GET') {
               const rows = db.prepare(`
@@ -93,20 +102,38 @@ export default defineConfig({
               `).all();
               sendJSON(res, 200, rows);
 
-            } else if (route === '/get' && req.method === 'GET') {
-              const id = urlObj.searchParams.get('id');
-              const row = db.prepare('SELECT * FROM analyses WHERE id = ?').get(id) as Record<string, unknown> | undefined;
-              if (!row) { sendJSON(res, 404, { error: 'Not found' }); return; }
-              sendJSON(res, 200, { ...row, data: JSON.parse(row.data as string) });
+} else if (route === '/get' && req.method === 'GET') {
+const id = urlObj.searchParams.get('id');
+const row = db.prepare('SELECT * FROM analyses WHERE id = ?').get(id) as Record<string, unknown> | undefined;
+if (!row) { sendJSON(res, 404, { error: 'Not found' }); return; }
+sendJSON(res, 200, { ...row, data: JSON.parse(row.data as string) });
 
-            } else if (route === '/delete' && req.method === 'DELETE') {
-              const id = urlObj.searchParams.get('id');
-              db.prepare('DELETE FROM analyses WHERE id = ?').run(id);
-              sendJSON(res, 200, { ok: true });
+} else if (route === '/compare' && req.method === 'GET') {
+const id1 = urlObj.searchParams.get('id1');
+const id2 = urlObj.searchParams.get('id2');
+if (!id1 || !id2) {
+sendJSON(res, 400, { error: 'Missing id1 or id2 parameter' });
+return;
+}
+const row1 = db.prepare('SELECT * FROM analyses WHERE id = ?').get(id1) as Record<string, unknown> | undefined;
+const row2 = db.prepare('SELECT * FROM analyses WHERE id = ?').get(id2) as Record<string, unknown> | undefined;
+if (!row1 || !row2) {
+sendJSON(res, 404, { error: 'One or both analyses not found' });
+return;
+}
+sendJSON(res, 200, {
+a: { ...row1, data: JSON.parse(row1.data as string), sourceText: row1.source_text },
+b: { ...row2, data: JSON.parse(row2.data as string), sourceText: row2.source_text },
+});
 
-            } else {
-              sendJSON(res, 404, { error: 'Route not found' });
-            }
+} else if (route === '/delete' && req.method === 'DELETE') {
+const id = urlObj.searchParams.get('id');
+db.prepare('DELETE FROM analyses WHERE id = ?').run(id);
+sendJSON(res, 200, { ok: true });
+
+} else {
+sendJSON(res, 404, { error: 'Route not found' });
+}
           } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : String(err);
             sendJSON(res, 500, { error: msg });
