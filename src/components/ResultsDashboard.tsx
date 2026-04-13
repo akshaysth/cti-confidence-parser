@@ -1,8 +1,12 @@
-import { Download, Trash2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Download, Trash2, AlertTriangle, List, Activity } from 'lucide-react';
 import type { WELMatch } from '../types';
 import { SummaryStats } from './SummaryStats';
 import { WELCard } from './WELCard';
+import { ConsistencyPanel } from './ConsistencyPanel';
 import { Button } from './ui/button';
+import { cn } from '../lib/utils';
+import { analyzeConsistency } from '../lib/consistencyChecker';
 
 interface Props {
   matches: WELMatch[];
@@ -10,7 +14,14 @@ interface Props {
   onClear: () => void;
 }
 
+type ViewTab = 'matches' | 'consistency';
+
 export function ResultsDashboard({ matches, sourceText, onClear }: Props) {
+  const [activeTab, setActiveTab] = useState<ViewTab>('matches');
+
+  const consistencyReport = useMemo(() => analyzeConsistency(matches), [matches]);
+  const hasWarnings = consistencyReport.issues.some((i) => i.severity === 'warning');
+
   const handleExport = () => {
     const payload = {
       timestamp: new Date().toISOString(),
@@ -72,11 +83,52 @@ export function ResultsDashboard({ matches, sourceText, onClear }: Props) {
 
         <SummaryStats matches={matches} />
 
-        <div className="space-y-3">
-          {matches.map((match, i) => (
-            <WELCard key={match.id} match={match} index={i} />
-          ))}
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-1 mb-4 border-b border-slate-200">
+          <button
+            onClick={() => setActiveTab('matches')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-[2px]',
+              activeTab === 'matches'
+                ? 'border-primary text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <List className="w-4 h-4" />
+            Matches
+          </button>
+          <button
+            onClick={() => setActiveTab('consistency')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-[2px]',
+              activeTab === 'consistency'
+                ? 'border-primary text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground',
+              hasWarnings && 'text-amber-600'
+            )}
+          >
+            <Activity className="w-4 h-4" />
+            Consistency
+            {hasWarnings && (
+              <span className="flex items-center justify-center w-5 h-5 bg-amber-100 text-amber-700 text-xs rounded-full font-bold">
+                <AlertTriangle className="w-3 h-3" />
+              </span>
+            )}
+          </button>
         </div>
+
+        {/* Tab Content */}
+        {activeTab === 'matches' ? (
+          <div className="space-y-3">
+            {matches.map((match, i) => (
+              <WELCard key={match.id} match={match} index={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white border border-slate-200 rounded-lg p-4">
+            <ConsistencyPanel matches={matches} />
+          </div>
+        )}
       </div>
     </div>
   );
