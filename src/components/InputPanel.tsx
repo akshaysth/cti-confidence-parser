@@ -113,13 +113,22 @@ export function InputPanel({ onAnalyze, isAnalyzing }: Props) {
                 />
               </TabsContent>
 
-              <TabsContent value="pdf">
-                <div
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={handleFileDrop}
-                  onClick={() => fileRef.current?.click()}
-                  className="w-full bg-surface-lowest border-0 border-b-2 border-dashed border-border hover:border-primary transition-colors rounded-t-sm px-4 py-8 text-center cursor-pointer"
-                >
+<TabsContent value="pdf">
+<div
+onDragOver={(e) => e.preventDefault()}
+onDrop={handleFileDrop}
+onClick={() => fileRef.current?.click()}
+onKeyDown={(e) => {
+if (e.key === 'Enter' && pdfName && !isBusy) {
+e.preventDefault();
+handleAnalyze();
+}
+}}
+tabIndex={0}
+role="button"
+aria-label="Upload PDF file"
+className="w-full bg-surface-lowest border-0 border-b-2 border-dashed border-border hover:border-primary transition-colors rounded-t-sm px-4 py-8 text-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+>
                   <Upload className="w-7 h-7 text-muted-foreground/50 mx-auto mb-2" />
                   {pdfName ? (
                     <p className="text-sm font-meta text-foreground">{pdfName}</p>

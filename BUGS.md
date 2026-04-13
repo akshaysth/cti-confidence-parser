@@ -126,14 +126,19 @@ id: Date.now().toString(),
 
 ## Summary
 
-| Bug | Severity | File |
-|-----|----------|------|
-| Session notes lost on history load | Critical | App.tsx, WorkspaceView.tsx |
-| Global mutable state | Low | App.tsx |
-| Sequential API calls | Medium | App.tsx |
-| Dead code in Ollama parsing | Low | modelClient.ts |
-| No error handling in dbClient | Medium | dbClient.ts |
-| Case mismatch in lookup | Medium | welDatabase.ts |
-| Enter key not working | Low | InputPanel.tsx |
-| Unused import | Low | WorkspaceView.tsx |
-| Note ID collision | Low | WorkspaceView.tsx |
+| Bug | Severity | File | Status |
+|-----|----------|------|--------|
+| Session notes lost on history load | Critical | App.tsx, WorkspaceView.tsx | ✅ Fixed |
+| Global mutable state | Low | App.tsx | ✅ Fixed |
+| Sequential API calls | Medium | App.tsx | ✅ Fixed |
+| Dead code in Ollama parsing | Low | modelClient.ts | ✅ Fixed |
+| No error handling in dbClient | Medium | dbClient.ts | ✅ Fixed |
+| Case mismatch in lookup | Medium | welDatabase.ts | ✅ Fixed |
+| Enter key not working for PDF tab | Low | InputPanel.tsx | 🚧 In Progress |
+| Unused import AlertCircle | Low | WorkspaceView.tsx | ✅ Fixed |
+| Note ID collision | Low | WorkspaceView.tsx | ✅ Fixed |
+
+## Status Legend
+- ✅ Fixed - Bug has been resolved
+- 🚧 In Progress - Currently being fixed
+- 🔴 Pending - Not yet addressed
