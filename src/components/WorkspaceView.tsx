@@ -1,13 +1,14 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import {
 FileText, Plus, Save, Tag, Percent, Download, Trash2,
-Clock, Loader, CheckCircle, XCircle, AlertCircle, BarChart3, StickyNote, Lightbulb,
+Clock, Loader, CheckCircle, XCircle, AlertCircle, BarChart3, StickyNote, Lightbulb, FileSearch,
 } from 'lucide-react';
-import type { WELMatch, WELTier } from '../types';
+import type { WELMatch, WELTier, IntelligenceClaim } from '../types';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
 import { VisualizationPanel } from './VisualizationPanel';
 import { WELSuggestions } from './WELSuggestions';
+import { ClaimsPanel } from './ClaimsPanel';
 
 export interface AnalystNote {
   id: string;
@@ -27,6 +28,7 @@ export interface AnalystNote {
 
 interface Props {
   matches: WELMatch[];
+  claims: IntelligenceClaim[];
   sourceText: string;
   sessionId: string;
   isAnalyzing: boolean;
@@ -450,64 +452,65 @@ Suggestions
 )}
 
 {rightPanelTab === 'notes' && (
-          {!activeMatch ? (
-            <div className="flex flex-col items-center justify-center h-48 text-slate-400 text-center px-8 border-2 border-dashed border-slate-200 rounded-xl">
-              <Percent className="w-7 h-7 mb-3 text-slate-300" />
-              <p className="text-sm font-meta">
-                Select a highlighted WEL phrase to extract context and create an analyst note.
-              </p>
-            </div>
-          ) : (
-            <NoteCreator
-              key={activeMatch.id}
-              match={activeMatch}
-              sessionId={sessionId}
-              onSave={handleSaveNote}
-              onCancel={() => setActiveMatchId(null)}
-            />
-          )}
+<>
+{!activeMatch ? (
+<div className="flex flex-col items-center justify-center h-48 text-slate-400 text-center px-8 border-2 border-dashed border-slate-200 rounded-xl">
+<Percent className="w-7 h-7 mb-3 text-slate-300" />
+<p className="text-sm font-meta">
+Select a highlighted WEL phrase to extract context and create an analyst note.
+</p>
+</div>
+) : (
+<NoteCreator
+key={activeMatch.id}
+match={activeMatch}
+sessionId={sessionId}
+onSave={handleSaveNote}
+onCancel={() => setActiveMatchId(null)}
+/>
+)}
 
-          {/* Notes saved this session */}
-          {sessionNotes.length > 0 && (
-            <div>
-              <h3 className="text-xs font-bold font-meta text-slate-600 uppercase tracking-wider mb-3 border-b border-slate-200 pb-2">
-                Saved · This Report
-              </h3>
-              <div className="space-y-2">
-                {sessionNotes.map((note) => (
-                  <div
-                    key={note.id}
-                    className="bg-white p-4 border border-slate-200 rounded-lg shadow-sm"
-                  >
-                    <div className="flex justify-between items-start mb-1.5">
-                      <h4 className="font-semibold text-slate-800 text-sm leading-snug">{note.title}</h4>
-                      <span className="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 shrink-0 ml-2">
-                        {note.kentRange[0]}–{note.kentRange[1]}%
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-500 mb-2 italic line-clamp-2 font-serif">
-                      "{note.sentence}"
-                    </p>
-                    {note.tags && (
-                      <div className="flex flex-wrap gap-1">
-                        {note.tags.split(',').map((tag, i) => (
-                          <span
-                            key={i}
-                            className="text-[10px] font-meta bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200"
-                          >
-                            {tag.trim()}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1 mt-2 text-[10px] font-meta text-slate-400">
-                      <Clock className="w-3 h-3" /> {note.date}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+{/* Notes saved this session */}
+{sessionNotes.length > 0 && (
+<div>
+<h3 className="text-xs font-bold font-meta text-slate-600 uppercase tracking-wider mb-3 border-b border-slate-200 pb-2">
+Saved · This Report
+</h3>
+<div className="space-y-2">
+{sessionNotes.map((note) => (
+<div
+key={note.id}
+className="bg-white p-4 border border-slate-200 rounded-lg shadow-sm"
+>
+<div className="flex justify-between items-start mb-1.5">
+<h4 className="font-semibold text-slate-800 text-sm leading-snug">{note.title}</h4>
+<span className="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 shrink-0 ml-2">
+{note.kentRange[0]}–{note.kentRange[1]}%
+</span>
+</div>
+<p className="text-xs text-slate-500 mb-2 italic line-clamp-2 font-serif">
+"{note.sentence}"
+</p>
+{note.tags && (
+<div className="flex flex-wrap gap-1">
+{note.tags.split(',').map((tag, i) => (
+<span
+key={i}
+className="text-[10px] font-meta bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200"
+>
+{tag.trim()}
+</span>
+))}
+</div>
+)}
+<div className="flex items-center gap-1 mt-2 text-[10px] font-meta text-slate-400">
+<Clock className="w-3 h-3" /> {note.date}
+</div>
+</div>
+))}
+</div>
+</div>
+)}
 
 {/* Analyzing indicator */}
 {isAnalyzing && (
@@ -516,7 +519,7 @@ Suggestions
 Model analysis in progress…
 </div>
 )}
-</div>
+</>
 )}
 </div>
 </div>

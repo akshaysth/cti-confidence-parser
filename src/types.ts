@@ -33,6 +33,18 @@ export interface QualityScore {
   explanation: string;
 }
 
+export interface IntelligenceClaim {
+  id: string;
+  claim: string;
+  confidence: string;
+  confidenceLevel: number;
+  timeframe?: string;
+  evidence: string[];
+  assumptions: string[];
+  sourceReferences: string[];
+  entities: string[];
+}
+
 export interface WELMatch {
   id: string;
   entry: WELEntry;

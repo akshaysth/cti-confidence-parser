@@ -6,7 +6,8 @@ import {
 import type { WELMatch, InputMode } from './types';
 import { detectWEL } from './lib/welDatabase';
 import { analyzeWEL, analyzeQuality } from './lib/modelClient';
-import type { QualityScore } from './types';
+import type { QualityScore, IntelligenceClaim } from './types';
+import { extractClaims } from './lib/claimExtractor';
 import { saveAnalysis } from './lib/dbClient';
 import { useModelConfig } from './hooks/useModelConfig';
 import { ModelConfigModal } from './components/ModelConfigModal';
@@ -175,12 +176,13 @@ export default function App() {
   const [currentView, setCurrentView] = useState<View>('ingestion');
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [matches, setMatches] = useState<WELMatch[]>([]);
-  const [sourceText, setSourceText] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [sessionId, setSessionId] = useState('');
-  const [notes, setNotes] = useState<AnalystNote[]>(loadNotes);
-  const abortRef = useRef(false);
+const [matches, setMatches] = useState<WELMatch[]>([]);
+const [claims, setClaims] = useState<IntelligenceClaim[]>([]);
+const [sourceText, setSourceText] = useState('');
+const [isAnalyzing, setIsAnalyzing] = useState(false);
+const [sessionId, setSessionId] = useState('');
+const [notes, setNotes] = useState<AnalystNote[]>(loadNotes);
+const abortRef = useRef(false);
   const matchCounterRef = useRef(0);
 
   const nextId = useCallback(() => {
@@ -219,50 +221,68 @@ export default function App() {
       status: 'pending',
     }));
 
-    setMatches(initial);
-    setIsAnalyzing(true);
+setMatches(initial);
+setIsAnalyzing(true);
+setClaims([]); // Clear previous claims
 
-    const finalMatches = initial.map((m) => ({ ...m }));
+const finalMatches = initial.map((m) => ({ ...m }));
 
-    // Process all matches in parallel for better performance
-await Promise.all(
-initial.map(async (m, i) => {
-if (abortRef.current) return;
-updateMatch(m.id, { status: 'analyzing' });
-try {
-// Analyze if it's WEL
-const result = await analyzeWEL(config, m.matchedPhrase, m.sentence);
-if (abortRef.current) return;
+// Extract intelligence claims in parallel with WEL analysis
+const claimsPromise = extractClaims(config, text).then((extractedClaims) => {
+  if (!abortRef.current) {
+    setClaims(extractedClaims);
+  }
+}).catch((err) => {
+  console.error('Failed to extract claims:', err);
+});
 
-const updates: Partial<WELMatch> = {
-status: 'done',
-modelConfidence: result.confidence,
-modelIsWEL: result.isWEL,
-modelReasoning: result.reasoning,
-};
+// Process all matches in parallel for better performance
+await Promise.all([
+  // WEL analysis
+  Promise.all(
+    initial.map(async (m, i) => {
+      if (abortRef.current) return;
+      updateMatch(m.id, { status: 'analyzing' });
+      try {
+        // Analyze if it's WEL
+        const result = await analyzeWEL(config, m.matchedPhrase, m.sentence);
+        if (abortRef.current) return;
 
-// Analyze quality of reasoning if confirmed as WEL
-if (result.isWEL) {
-try {
-const quality = await analyzeQuality(config, m.matchedPhrase, m.sentence);
-if (!abortRef.current) {
-updates.qualityScore = quality;
-}
-} catch {
-// Quality analysis is optional, don't fail on error
-}
-}
+        const updates: Partial<WELMatch> = {
+          status: 'done',
+          modelConfidence: result.confidence,
+          modelIsWEL: result.isWEL,
+          modelReasoning: result.reasoning,
+        };
 
-finalMatches[i] = { ...finalMatches[i], ...updates };
-updateMatch(m.id, updates);
-} catch (err) {
-if (abortRef.current) return;
-const error = err instanceof Error ? err.message : String(err);
-finalMatches[i] = { ...finalMatches[i], status: 'error', error };
-updateMatch(m.id, { status: 'error', error });
-}
-})
-);
+        // Analyze quality of reasoning if confirmed as WEL
+        if (result.isWEL) {
+          try {
+            const quality = await analyzeQuality(config, m.matchedPhrase, m.sentence);
+            if (!abortRef.current) {
+              updates.qualityScore = quality;
+            }
+          } catch {
+            // Quality analysis is optional, don't fail on error
+          }
+        }
+
+        finalMatches[i] = { ...finalMatches[i], ...updates };
+        updateMatch(m.id, updates);
+      } catch (err) {
+        if (abortRef.current) return;
+        const error = err instanceof Error ? err.message : String(err);
+        finalMatches[i] = { ...finalMatches[i], status: 'error', error };
+        updateMatch(m.id, { status: 'error', error });
+      }
+    })
+  ),
+  // Claims extraction
+  claimsPromise,
+]);
+
+// Also wait for claims if they haven't finished
+await claimsPromise;
 
 // Count confirmed WEL from final results (safe to do after all parallel work completes)
 const confirmedWel = finalMatches.filter((m) => m.status === 'done' && m.modelIsWEL).length;
@@ -382,17 +402,18 @@ sourceText: text,
           </div>
         )}
 
-        {currentView === 'workspace' && (
-          <WorkspaceView
-            matches={matches}
-            sourceText={sourceText}
-            sessionId={sessionId}
-            isAnalyzing={isAnalyzing}
-            notes={notes}
-            onSaveNote={handleSaveNote}
-            onClear={handleClear}
-          />
-        )}
+{currentView === 'workspace' && (
+<WorkspaceView
+matches={matches}
+claims={claims}
+sourceText={sourceText}
+sessionId={sessionId}
+isAnalyzing={isAnalyzing}
+notes={notes}
+onSaveNote={handleSaveNote}
+onClear={handleClear}
+/>
+)}
 
         {currentView === 'library' && (
           <div className="h-full overflow-y-auto">
