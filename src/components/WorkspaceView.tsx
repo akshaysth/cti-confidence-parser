@@ -1,12 +1,13 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import {
 FileText, Plus, Save, Tag, Percent, Download, Trash2,
-Clock, Loader, CheckCircle, XCircle, AlertCircle, BarChart3, StickyNote,
+Clock, Loader, CheckCircle, XCircle, AlertCircle, BarChart3, StickyNote, Lightbulb,
 } from 'lucide-react';
 import type { WELMatch, WELTier } from '../types';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
 import { VisualizationPanel } from './VisualizationPanel';
+import { WELSuggestions } from './WELSuggestions';
 
 export interface AnalystNote {
   id: string;
@@ -241,7 +242,7 @@ function NoteCreator({
 
 // ── Main WorkspaceView ────────────────────────────────────────────────────────
 
-type RightPanelTab = 'notes' | 'visualizations';
+type RightPanelTab = 'notes' | 'visualizations' | 'suggestions';
 
 export function WorkspaceView({
 matches,
@@ -424,12 +425,28 @@ rightPanelTab === 'visualizations'
 <BarChart3 className="w-4 h-4" />
 Visualizations
 </button>
+<button
+onClick={() => setRightPanelTab('suggestions')}
+className={cn(
+'flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors border-b-2 -mb-[1px]',
+rightPanelTab === 'suggestions'
+? 'border-primary text-foreground'
+: 'border-transparent text-muted-foreground hover:text-foreground'
+)}
+>
+<Lightbulb className="w-4 h-4" />
+Suggestions
+</button>
 </div>
 </div>
 
 <div className="flex-1 overflow-y-auto p-5 space-y-5">
 {rightPanelTab === 'visualizations' && (
 <VisualizationPanel matches={matches} />
+)}
+
+{rightPanelTab === 'suggestions' && (
+<WELSuggestions matches={matches} />
 )}
 
 {rightPanelTab === 'notes' && (
