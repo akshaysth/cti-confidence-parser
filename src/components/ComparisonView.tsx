@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { X, ArrowLeftRight, ChevronRight, Plus, Minus, AlertCircle, FileText, Clock } from 'lucide-react';
 import type { WELMatch } from '../types';
-import { TIER_META, TIER_ORDER } from '../types';
+import { TIER_META } from '../types';
+import { TIER_ORDER } from '../lib/welDatabase';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
 import {

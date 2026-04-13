@@ -1,7 +1,8 @@
 import { BarChart3, Download, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '../lib/utils';
-import { TIER_META, TIER_ORDER } from '../types';
+import { TIER_META } from '../types';
+import { TIER_ORDER } from '../lib/welDatabase';
 import type { BatchJob } from '../lib/batchProcessor';
 
 interface Props {
