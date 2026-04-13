@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* surface = #f8f9fb */
+    --background: 220 18% 98%;
+    /* on-surface = #191c1e */
+    --foreground: 207 9% 11%;
+    /* surface-lowest = #ffffff */
+    --card: 0 0% 100%;
+    --card-foreground: 207 9% 11%;
+    /* primary = #041627 */
+    --primary: 211 81% 8%;
+    --primary-foreground: 0 0% 100%;
+    /* secondary-container = #cbe7f5 */
+    --secondary: 200 70% 88%;
+    --secondary-foreground: 200 20% 38%;
+    /* surface-low = #f2f4f6 */
+    --muted: 210 15% 96%;
+    --muted-foreground: 207 9% 45%;
+    --accent: 200 70% 88%;
+    --accent-foreground: 200 20% 38%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+    /* Ghost border per design spec */
+    --border: 220 10% 90%;
+    --input: 210 15% 96%;
+    --ring: 211 81% 8%;
+    --radius: 0.375rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 9999px;
+  }
+}
