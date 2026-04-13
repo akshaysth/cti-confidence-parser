@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import {
-  FileText, Plus, Save, Tag, Percent, Download, Trash2,
-  Clock, Loader, CheckCircle, XCircle, AlertCircle,
+FileText, Plus, Save, Tag, Percent, Download, Trash2,
+Clock, Loader, CheckCircle, XCircle, AlertCircle, BarChart3, StickyNote,
 } from 'lucide-react';
 import type { WELMatch, WELTier } from '../types';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
+import { VisualizationPanel } from './VisualizationPanel';
 
 export interface AnalystNote {
   id: string;
@@ -240,16 +241,19 @@ function NoteCreator({
 
 // ── Main WorkspaceView ────────────────────────────────────────────────────────
 
+type RightPanelTab = 'notes' | 'visualizations';
+
 export function WorkspaceView({
-  matches,
-  sourceText,
-  sessionId,
-  isAnalyzing,
-  notes,
-  onSaveNote,
-  onClear,
+matches,
+sourceText,
+sessionId,
+isAnalyzing,
+notes,
+onSaveNote,
+onClear,
 }: Props) {
-  const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
+const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
+const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>('notes');
 
   const activeMatch = useMemo(
     () => matches.find((m) => m.id === activeMatchId) ?? null,
@@ -391,19 +395,44 @@ export function WorkspaceView({
         </div>
       </div>
 
-      {/* ── Right pane: note creator ── */}
-      <div className="w-2/5 flex flex-col bg-slate-50">
-        <div className="px-6 py-3 border-b border-slate-200 bg-white shrink-0">
-          <h2 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-            <Plus className="w-4 h-4 text-blue-600" />
-            Atomic Note Creator
-          </h2>
-          <p className="text-xs font-meta text-slate-500 mt-0.5">
-            Click a highlighted phrase to annotate.
-          </p>
-        </div>
+{/* ── Right pane: note creator ── */}
+<div className="w-2/5 flex flex-col bg-slate-50">
+{/* Tab Navigation */}
+<div className="px-6 py-3 border-b border-slate-200 bg-white shrink-0">
+<div className="flex items-center gap-1">
+<button
+onClick={() => setRightPanelTab('notes')}
+className={cn(
+'flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors border-b-2 -mb-[1px]',
+rightPanelTab === 'notes'
+? 'border-primary text-foreground'
+: 'border-transparent text-muted-foreground hover:text-foreground'
+)}
+>
+<StickyNote className="w-4 h-4" />
+Notes
+</button>
+<button
+onClick={() => setRightPanelTab('visualizations')}
+className={cn(
+'flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors border-b-2 -mb-[1px]',
+rightPanelTab === 'visualizations'
+? 'border-primary text-foreground'
+: 'border-transparent text-muted-foreground hover:text-foreground'
+)}
+>
+<BarChart3 className="w-4 h-4" />
+Visualizations
+</button>
+</div>
+</div>
 
-        <div className="flex-1 overflow-y-auto p-5 space-y-5">
+<div className="flex-1 overflow-y-auto p-5 space-y-5">
+{rightPanelTab === 'visualizations' && (
+<VisualizationPanel matches={matches} />
+)}
+
+{rightPanelTab === 'notes' && (
           {!activeMatch ? (
             <div className="flex flex-col items-center justify-center h-48 text-slate-400 text-center px-8 border-2 border-dashed border-slate-200 rounded-xl">
               <Percent className="w-7 h-7 mb-3 text-slate-300" />
@@ -463,15 +492,17 @@ export function WorkspaceView({
             </div>
           )}
 
-          {/* Analyzing indicator */}
-          {isAnalyzing && (
-            <div className="flex items-center gap-2 text-xs font-meta text-slate-500 justify-center py-2">
-              <Loader className="w-3 h-3 animate-spin" />
-              Model analysis in progress…
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+{/* Analyzing indicator */}
+{isAnalyzing && (
+<div className="flex items-center gap-2 text-xs font-meta text-slate-500 justify-center py-2">
+<Loader className="w-3 h-3 animate-spin" />
+Model analysis in progress…
+</div>
+)}
+</div>
+)}
+</div>
+</div>
+</div>
   );
 }
