@@ -5,7 +5,8 @@ import {
 } from 'lucide-react';
 import type { WELMatch, InputMode } from './types';
 import { detectWEL } from './lib/welDatabase';
-import { analyzeWEL } from './lib/modelClient';
+import { analyzeWEL, analyzeQuality } from './lib/modelClient';
+import type { QualityScore } from './types';
 import { saveAnalysis } from './lib/dbClient';
 import { useModelConfig } from './hooks/useModelConfig';
 import { ModelConfigModal } from './components/ModelConfigModal';
@@ -224,32 +225,47 @@ export default function App() {
     const finalMatches = initial.map((m) => ({ ...m }));
 
     // Process all matches in parallel for better performance
-    await Promise.all(
-      initial.map(async (m, i) => {
-        if (abortRef.current) return;
-        updateMatch(m.id, { status: 'analyzing' });
-        try {
-          const result = await analyzeWEL(config, m.matchedPhrase, m.sentence);
-          if (abortRef.current) return;
-          const updates: Partial<WELMatch> = {
-            status: 'done',
-            modelConfidence: result.confidence,
-            modelIsWEL: result.isWEL,
-            modelReasoning: result.reasoning,
-          };
-          finalMatches[i] = { ...finalMatches[i], ...updates };
-          updateMatch(m.id, updates);
-        } catch (err) {
-          if (abortRef.current) return;
-          const error = err instanceof Error ? err.message : String(err);
-          finalMatches[i] = { ...finalMatches[i], status: 'error', error };
-          updateMatch(m.id, { status: 'error', error });
-        }
-      })
-    );
+await Promise.all(
+initial.map(async (m, i) => {
+if (abortRef.current) return;
+updateMatch(m.id, { status: 'analyzing' });
+try {
+// Analyze if it's WEL
+const result = await analyzeWEL(config, m.matchedPhrase, m.sentence);
+if (abortRef.current) return;
 
-    // Count confirmed WEL from final results (safe to do after all parallel work completes)
-    confirmedWel = finalMatches.filter((m) => m.status === 'done' && m.modelIsWEL).length;
+const updates: Partial<WELMatch> = {
+status: 'done',
+modelConfidence: result.confidence,
+modelIsWEL: result.isWEL,
+modelReasoning: result.reasoning,
+};
+
+// Analyze quality of reasoning if confirmed as WEL
+if (result.isWEL) {
+try {
+const quality = await analyzeQuality(config, m.matchedPhrase, m.sentence);
+if (!abortRef.current) {
+updates.qualityScore = quality;
+}
+} catch {
+// Quality analysis is optional, don't fail on error
+}
+}
+
+finalMatches[i] = { ...finalMatches[i], ...updates };
+updateMatch(m.id, updates);
+} catch (err) {
+if (abortRef.current) return;
+const error = err instanceof Error ? err.message : String(err);
+finalMatches[i] = { ...finalMatches[i], status: 'error', error };
+updateMatch(m.id, { status: 'error', error });
+}
+})
+);
+
+// Count confirmed WEL from final results (safe to do after all parallel work completes)
+const confirmedWel = finalMatches.filter((m) => m.status === 'done' && m.modelIsWEL).length;
 
     setIsAnalyzing(false);
 

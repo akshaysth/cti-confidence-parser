@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Loader, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Loader, CheckCircle, XCircle, AlertCircle, Star } from 'lucide-react';
 import type { WELMatch, WELTier } from '../types';
 import { Badge } from './ui/badge';
 import { cn } from '../lib/utils';
@@ -171,30 +171,61 @@ export function WELCard({ match, index }: Props) {
               Analyzing with model…
             </div>
           )}
-          {match.status === 'done' && match.modelConfidence !== null && (
-            <div className="space-y-2">
-              <ConfidenceDial
-                confidence={match.modelConfidence}
-                isWEL={match.modelIsWEL ?? false}
-              />
-              {match.modelReasoning && (
-                <div>
-                  <button
-                    onClick={() => setExpanded((v) => !v)}
-                    className="flex items-center gap-1 text-xs font-meta text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                    Reasoning
-                  </button>
-                  {expanded && (
-                    <p className="mt-1.5 text-xs font-meta text-muted-foreground leading-relaxed">
-                      {match.modelReasoning}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+{match.status === 'done' && match.modelConfidence !== null && (
+<div className="space-y-2">
+<ConfidenceDial
+confidence={match.modelConfidence}
+isWEL={match.modelIsWEL ?? false}
+/>
+{match.qualityScore && (
+<div className="mt-2 pt-2 border-t border-border/30">
+<div className="flex items-center gap-1.5">
+<div className="flex">
+{[1, 2, 3, 4, 5].map((star) => (
+<Star
+key={star}
+className={cn(
+'w-3 h-3',
+star <= (match.qualityScore?.score || 0)
+? 'fill-amber-400 text-amber-400'
+: 'text-slate-200'
+)}
+/>
+))}
+</div>
+<span className="text-[10px] font-medium text-slate-600">
+{match.qualityScore.score >= 4
+? 'Excellent'
+: match.qualityScore.score >= 3
+? 'Good'
+: match.qualityScore.score >= 2
+? 'Fair'
+: 'Poor'}
+</span>
+</div>
+<p className="text-[10px] text-slate-400 mt-1">
+{match.qualityScore.explanation}
+</p>
+</div>
+)}
+{match.modelReasoning && (
+<div>
+<button
+onClick={() => setExpanded((v) => !v)}
+className="flex items-center gap-1 text-xs font-meta text-muted-foreground hover:text-foreground transition-colors"
+>
+{expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+Reasoning
+</button>
+{expanded && (
+<p className="mt-1.5 text-xs font-meta text-muted-foreground leading-relaxed">
+{match.modelReasoning}
+</p>
+)}
+</div>
+)}
+</div>
+)}
           {match.status === 'error' && (
             <p className="text-xs font-meta text-destructive">{match.error ?? 'Analysis failed'}</p>
           )}

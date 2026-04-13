@@ -17,6 +17,51 @@ Fields:
 - confidence: integer 0–100 — your confidence that this IS a WEL usage (100 = definitively WEL)
 - reasoning: string — 1–2 sentence explanation`;
 
+const QUALITY_PROMPT = `You are an expert intelligence analyst. Evaluate the quality of justification for a confidence assessment.
+
+Rate how well the sentence provides evidence or reasoning supporting the confidence level expressed.
+
+Respond ONLY with valid JSON in this exact format:
+{"score": 4, "explanation": "brief explanation"}
+
+Score rubric (1-5):
+5 = Excellent: Strong evidence, clear reasoning, specific details supporting the assessment
+4 = Good: Adequate evidence, reasonable justification provided
+3 = Fair: Minimal evidence, weak connection to confidence level
+2 = Poor: Little to no evidence, mostly unsupported assertion
+1 = Inadequate: No evidence, pure speculation, or contradictory reasoning
+
+Fields:
+- score: integer 1-5
+- explanation: 1 sentence explaining the rating`;
+
+export interface QualityScore {
+  score: number;
+  explanation: string;
+}
+
+function qualityUserPrompt(phrase: string, sentence: string): string {
+  return `Phrase: "${phrase}"
+Sentence: "${sentence}"
+
+Rate the quality of justification for this confidence assessment.`;
+}
+
+function parseQualityResponse(content: string): QualityScore {
+  const jsonMatch = content.match(/\{[\s\S]*?\}/);
+  if (!jsonMatch) return { score: 0, explanation: 'Could not parse response' };
+
+  try {
+    const parsed = JSON.parse(jsonMatch[0]);
+    return {
+      score: Math.max(1, Math.min(5, Number(parsed.score) || 0)),
+      explanation: String(parsed.explanation || ''),
+    };
+  } catch {
+    return { score: 0, explanation: 'Invalid response format' };
+  }
+}
+
 function userPrompt(phrase: string, sentence: string): string {
   return `Sentence: "${sentence}"
 
@@ -92,15 +137,79 @@ async function callOpenAICompatible(
   return parseResponse(content);
 }
 
+async function callOllamaQuality(
+config: ModelConfig,
+phrase: string,
+sentence: string,
+): Promise<QualityScore> {
+const res = await fetch(`${config.endpoint}/api/chat`, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+model: config.model,
+messages: [
+{ role: 'system', content: QUALITY_PROMPT },
+{ role: 'user', content: qualityUserPrompt(phrase, sentence) },
+],
+stream: false,
+format: 'json',
+}),
+});
+if (!res.ok) throw new Error(`Ollama ${res.status}: ${await res.text()}`);
+const data = await res.json();
+const content: string = data.message?.content ?? '';
+return parseQualityResponse(content);
+}
+
+async function callOpenAICompatibleQuality(
+config: ModelConfig,
+phrase: string,
+sentence: string,
+): Promise<QualityScore> {
+const headers: Record<string, string> = {
+'Content-Type': 'application/json',
+};
+if (config.apiKey) headers['Authorization'] = `Bearer ${config.apiKey}`;
+
+const res = await fetch(`${config.endpoint}/v1/chat/completions`, {
+method: 'POST',
+headers,
+body: JSON.stringify({
+model: config.model,
+messages: [
+{ role: 'system', content: QUALITY_PROMPT },
+{ role: 'user', content: qualityUserPrompt(phrase, sentence) },
+],
+temperature: 0.1,
+response_format: { type: 'json_object' },
+}),
+});
+if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
+const data = await res.json();
+const content: string = data.choices?.[0]?.message?.content ?? '';
+return parseQualityResponse(content);
+}
+
 export async function analyzeWEL(
-  config: ModelConfig,
-  phrase: string,
-  sentence: string,
+config: ModelConfig,
+phrase: string,
+sentence: string,
 ): Promise<ModelAnalysisResult> {
-  if (config.backend === 'ollama') {
-    return callOllama(config, phrase, sentence);
-  }
-  return callOpenAICompatible(config, phrase, sentence);
+if (config.backend === 'ollama') {
+return callOllama(config, phrase, sentence);
+}
+return callOpenAICompatible(config, phrase, sentence);
+}
+
+export async function analyzeQuality(
+config: ModelConfig,
+phrase: string,
+sentence: string,
+): Promise<QualityScore> {
+if (config.backend === 'ollama') {
+return callOllamaQuality(config, phrase, sentence);
+}
+return callOpenAICompatibleQuality(config, phrase, sentence);
 }
 
 // Fetch available models from the configured server

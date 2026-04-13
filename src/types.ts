@@ -20,6 +20,19 @@ export interface WELEntry {
 
 export type MatchStatus = 'pending' | 'analyzing' | 'done' | 'error' | 'skipped';
 
+export const TIER_ORDER: WELTier[] = [
+  'certain',
+  'probable',
+  'even',
+  'unlikely',
+  'remote',
+];
+
+export interface QualityScore {
+  score: number;
+  explanation: string;
+}
+
 export interface WELMatch {
   id: string;
   entry: WELEntry;
@@ -29,6 +42,7 @@ export interface WELMatch {
   modelConfidence: number | null;
   modelIsWEL: boolean | null;
   modelReasoning: string | null;
+  qualityScore?: QualityScore;
   status: MatchStatus;
   error?: string;
 }

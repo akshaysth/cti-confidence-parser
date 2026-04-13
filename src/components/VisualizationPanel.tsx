@@ -13,7 +13,8 @@ import {
   Legend,
 } from 'recharts';
 import type { WELMatch } from '../types';
-import { TIER_META, TIER_ORDER } from '../types';
+import { TIER_META } from '../types';
+import { TIER_ORDER } from '../lib/welDatabase';
 import { cn } from '../lib/utils';
 
 interface Props {
