@@ -36,20 +36,20 @@ const handleExport = () => {
     totalMatches: allMatches.length,
     totalConfirmed,
     tierDistribution,
-    documents: completedJobs.map((j) => ({
-      name: j.name,
-      type: j.type,
-      matches: j.matches.length,
-      confirmed: j.confirmedCount,
-      matches: j.matches.map((m) => ({
-        phrase: m.matchedPhrase,
-        tier: m.entry.tier,
-        confidence: m.entry.kentRange,
-        modelConfidence: m.modelConfidence,
-        isWEL: m.modelIsWEL,
-        sentence: m.sentence,
-      })),
-    })),
+documents: completedJobs.map((j) => ({
+name: j.name,
+type: j.type,
+matchCount: j.matches.length,
+confirmed: j.confirmedCount,
+matches: j.matches.map((m) => ({
+phrase: m.matchedPhrase,
+tier: m.entry.tier,
+confidence: m.entry.kentRange,
+modelConfidence: m.modelConfidence,
+isWEL: m.modelIsWEL,
+sentence: m.sentence,
+})),
+})),
   };
 
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
