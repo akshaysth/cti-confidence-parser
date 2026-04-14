@@ -39,13 +39,13 @@ interface Props {
   onClear: () => void;
 }
 
-// Tier → inline highlight colors (light mode)
+// Tier → inline highlight colors (theme-aware)
 const TIER_HIGHLIGHT: Record<WELTier, { base: string; active: string }> = {
-  certain:  { base: 'bg-orange-100 text-orange-900 border-b-2 border-orange-400 hover:bg-orange-200',  active: 'ring-2 ring-orange-400 ring-offset-1 bg-orange-200' },
-  probable: { base: 'bg-yellow-100 text-yellow-900 border-b-2 border-yellow-400 hover:bg-yellow-200', active: 'ring-2 ring-yellow-400 ring-offset-1 bg-yellow-200' },
-  even:     { base: 'bg-blue-100   text-blue-900   border-b-2 border-blue-400   hover:bg-blue-200',   active: 'ring-2 ring-blue-400   ring-offset-1 bg-blue-200' },
-  unlikely: { base: 'bg-teal-100   text-teal-900   border-b-2 border-teal-400   hover:bg-teal-200',   active: 'ring-2 ring-teal-400   ring-offset-1 bg-teal-200' },
-  remote:   { base: 'bg-green-100  text-green-900  border-b-2 border-green-400  hover:bg-green-200',  active: 'ring-2 ring-green-400  ring-offset-1 bg-green-200' },
+  certain: { base: 'bg-[hsl(var(--tier-certain-bg))] text-[hsl(var(--tier-certain))] border-b-2 border-[hsl(var(--tier-certain))] hover:brightness-95', active: 'ring-2 ring-[hsl(var(--tier-certain))] ring-offset-1 bg-[hsl(var(--tier-certain-bg))]' },
+  probable: { base: 'bg-[hsl(var(--tier-probable-bg))] text-[hsl(var(--tier-probable))] border-b-2 border-[hsl(var(--tier-probable))] hover:brightness-95', active: 'ring-2 ring-[hsl(var(--tier-probable))] ring-offset-1 bg-[hsl(var(--tier-probable-bg))]' },
+  even: { base: 'bg-[hsl(var(--tier-even-bg))] text-[hsl(var(--tier-even))] border-b-2 border-[hsl(var(--tier-even))] hover:brightness-95', active: 'ring-2 ring-[hsl(var(--tier-even))] ring-offset-1 bg-[hsl(var(--tier-even-bg))]' },
+  unlikely: { base: 'bg-[hsl(var(--tier-unlikely-bg))] text-[hsl(var(--tier-unlikely))] border-b-2 border-[hsl(var(--tier-unlikely))] hover:brightness-95', active: 'ring-2 ring-[hsl(var(--tier-unlikely))] ring-offset-1 bg-[hsl(var(--tier-unlikely-bg))]' },
+  remote: { base: 'bg-[hsl(var(--tier-remote-bg))] text-[hsl(var(--tier-remote))] border-b-2 border-[hsl(var(--tier-remote))] hover:brightness-95', active: 'ring-2 ring-[hsl(var(--tier-remote))] ring-offset-1 bg-[hsl(var(--tier-remote-bg))]' },
 };
 
 type Segment =

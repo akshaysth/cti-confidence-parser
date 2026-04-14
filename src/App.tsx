@@ -15,6 +15,7 @@ import { HistoryPanel } from './components/HistoryPanel';
 import { InputPanel } from './components/InputPanel';
 import { WorkspaceView } from './components/WorkspaceView';
 import type { AnalystNote } from './components/WorkspaceView';
+import { ThemeToggle } from './components/ThemeToggle';
 import { cn } from './lib/utils';
 
 type View = 'ingestion' | 'workspace' | 'library';
@@ -384,24 +385,27 @@ sourceText: text,
           />
         </nav>
 
-        {/* Footer buttons */}
-        <div className="p-3 border-t border-white/10 flex flex-col gap-0.5">
-          <button
-            onClick={() => setShowHistory(true)}
-            className="flex items-center gap-3 w-full text-white/40 hover:text-white transition-colors text-sm font-medium py-2 px-3 rounded hover:bg-white/8"
-          >
-            <History className="w-4 h-4 shrink-0" />
-            Analysis History
-          </button>
-          <button
-            onClick={() => setShowSettings(true)}
-            className="flex items-center gap-3 w-full text-white/40 hover:text-white transition-colors text-sm font-medium py-2 px-3 rounded hover:bg-white/8"
-          >
-            <Settings className="w-4 h-4 shrink-0" />
-            Model Settings
-          </button>
+{/* Footer buttons */}
+      <div className="p-3 border-t border-white/10 flex flex-col gap-0.5">
+        <button
+          onClick={() => setShowHistory(true)}
+          className="flex items-center gap-3 w-full text-white/40 hover:text-white transition-colors text-sm font-medium py-2 px-3 rounded hover:bg-white/8"
+        >
+          <History className="w-4 h-4 shrink-0" />
+          Analysis History
+        </button>
+        <button
+          onClick={() => setShowSettings(true)}
+          className="flex items-center gap-3 w-full text-white/40 hover:text-white transition-colors text-sm font-medium py-2 px-3 rounded hover:bg-white/8"
+        >
+          <Settings className="w-4 h-4 shrink-0" />
+          Model Settings
+        </button>
+        <div className="mt-2 pt-2 border-t border-white/10">
+          <ThemeToggle variant="select" className="[&_label]:text-white/60 [&_label]:text-xs" />
         </div>
-      </aside>
+      </div>
+    </aside>
 
       {/* ── Main content ── */}
       <main className="flex-1 overflow-hidden h-full">

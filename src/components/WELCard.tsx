@@ -178,35 +178,35 @@ confidence={match.modelConfidence}
 isWEL={match.modelIsWEL ?? false}
 />
 {match.qualityScore && (
-<div className="mt-2 pt-2 border-t border-border/30">
-<div className="flex items-center gap-1.5">
-<div className="flex">
-{[1, 2, 3, 4, 5].map((star) => (
-<Star
-key={star}
-className={cn(
-'w-3 h-3',
-star <= (match.qualityScore?.score || 0)
-? 'fill-amber-400 text-amber-400'
-: 'text-slate-200'
-)}
-/>
-))}
-</div>
-<span className="text-[10px] font-medium text-slate-600">
-{match.qualityScore.score >= 4
-? 'Excellent'
-: match.qualityScore.score >= 3
-? 'Good'
-: match.qualityScore.score >= 2
-? 'Fair'
-: 'Poor'}
-</span>
-</div>
-<p className="text-[10px] text-slate-400 mt-1">
-{match.qualityScore.explanation}
-</p>
-</div>
+              <div className="mt-2 pt-2 border-t border-border/30">
+                <div className="flex items-center gap-1.5">
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={cn(
+                          'w-3 h-3',
+                          star <= (match.qualityScore?.score || 0)
+                            ? 'fill-warning text-warning'
+                            : 'text-muted'
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-medium text-muted-foreground">
+                    {match.qualityScore.score >= 4
+                      ? 'Excellent'
+                      : match.qualityScore.score >= 3
+                        ? 'Good'
+                        : match.qualityScore.score >= 2
+                          ? 'Fair'
+                          : 'Poor'}
+                  </span>
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {match.qualityScore.explanation}
+                </p>
+              </div>
 )}
 {match.modelReasoning && (
 <div>

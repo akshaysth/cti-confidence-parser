@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plug, CheckCircle, XCircle, Loader, RefreshCw } from 'lucide-react';
 import type { ModelConfig, BackendType } from '../types';
 import { testConnection, fetchModels } from '../lib/modelClient';
+import { ThemeToggle } from './ThemeToggle';
 import {
   Dialog,
   DialogContent,
@@ -200,26 +201,29 @@ export function ModelConfigModal({ config, onSave, onClose }: Props) {
             </div>
           )}
 
-          {/* Test result */}
-          {testState !== 'idle' && (
-            <div
-              className={`flex items-start gap-2 px-3 py-2 rounded-md text-sm font-meta ${
-                testState === 'testing'
-                  ? 'bg-muted text-muted-foreground'
-                  : testState === 'ok'
-                  ? 'bg-tier-certain/10 text-tier-certain'
-                  : 'bg-destructive/10 text-destructive'
-              }`}
-            >
-              {testState === 'testing' && <Loader className="w-4 h-4 mt-0.5 animate-spin shrink-0" />}
-              {testState === 'ok' && <CheckCircle className="w-4 h-4 mt-0.5 shrink-0" />}
-              {testState === 'fail' && <XCircle className="w-4 h-4 mt-0.5 shrink-0" />}
-              <span>{testState === 'testing' ? 'Testing connection…' : testMsg}</span>
-            </div>
-          )}
-        </div>
+{/* Theme Toggle */}
+      <ThemeToggle variant="select" />
 
-        <DialogFooter>
+      {/* Test result */}
+      {testState !== 'idle' && (
+        <div
+          className={`flex items-start gap-2 px-3 py-2 rounded-md text-sm font-meta ${
+            testState === 'testing'
+            ? 'bg-muted text-muted-foreground'
+            : testState === 'ok'
+            ? 'bg-success/10 text-success'
+            : 'bg-destructive/10 text-destructive'
+          }`}
+        >
+          {testState === 'testing' && <Loader className="w-4 h-4 mt-0.5 animate-spin shrink-0" />}
+          {testState === 'ok' && <CheckCircle className="w-4 h-4 mt-0.5 shrink-0" />}
+          {testState === 'fail' && <XCircle className="w-4 h-4 mt-0.5 shrink-0" />}
+          <span>{testState === 'testing' ? 'Testing connection…' : testMsg}</span>
+        </div>
+      )}
+    </div>
+
+    <DialogFooter>
           <Button variant="outline" size="sm" onClick={handleTest} disabled={testState === 'testing'}>
             <Plug className="w-3.5 h-3.5" />
             Test Connection

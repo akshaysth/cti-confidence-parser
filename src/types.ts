@@ -61,38 +61,39 @@ export interface WELMatch {
 
 export type InputMode = 'text' | 'pdf' | 'url';
 
+// Theme-aware tier colors using CSS variables
 export const TIER_META: Record<
   WELTier,
   { label: string; color: string; bgColor: string; borderColor: string }
 > = {
   certain: {
     label: 'Certain',
-    color: 'text-emerald-400',
-    bgColor: 'bg-emerald-900/30',
-    borderColor: 'border-emerald-800',
+    color: 'text-[hsl(var(--tier-certain))]',
+    bgColor: 'bg-[hsl(var(--tier-certain-bg))]',
+    borderColor: 'border-[hsl(var(--tier-certain))]',
   },
   probable: {
     label: 'Probable',
-    color: 'text-lime-400',
-    bgColor: 'bg-lime-900/30',
-    borderColor: 'border-lime-800',
+    color: 'text-[hsl(var(--tier-probable))]',
+    bgColor: 'bg-[hsl(var(--tier-probable-bg))]',
+    borderColor: 'border-[hsl(var(--tier-probable))]',
   },
   even: {
     label: 'Even Odds',
-    color: 'text-sky-400',
-    bgColor: 'bg-sky-900/30',
-    borderColor: 'border-sky-800',
+    color: 'text-[hsl(var(--tier-even))]',
+    bgColor: 'bg-[hsl(var(--tier-even-bg))]',
+    borderColor: 'border-[hsl(var(--tier-even))]',
   },
   unlikely: {
     label: 'Unlikely',
-    color: 'text-amber-400',
-    bgColor: 'bg-amber-900/30',
-    borderColor: 'border-amber-800',
+    color: 'text-[hsl(var(--tier-unlikely))]',
+    bgColor: 'bg-[hsl(var(--tier-unlikely-bg))]',
+    borderColor: 'border-[hsl(var(--tier-unlikely))]',
   },
   remote: {
     label: 'Remote',
-    color: 'text-rose-400',
-    bgColor: 'bg-rose-900/30',
-    borderColor: 'border-rose-800',
+    color: 'text-[hsl(var(--tier-remote))]',
+    bgColor: 'bg-[hsl(var(--tier-remote-bg))]',
+    borderColor: 'border-[hsl(var(--tier-remote))]',
   },
 };

@@ -10,6 +10,25 @@ interface Props {
   matches: WELMatch[];
 }
 
+// Theme-aware quality colors
+const QUALITY_COLORS = {
+  high: {
+    card: 'bg-success/10 border-success/30',
+    badge: 'bg-success/20 text-success',
+    icon: 'text-success',
+  },
+  medium: {
+    card: 'bg-warning/10 border-warning/30',
+    badge: 'bg-warning/20 text-warning',
+    icon: 'text-warning',
+  },
+  low: {
+    card: 'bg-muted border-border',
+    badge: 'bg-muted-foreground/20 text-muted-foreground',
+    icon: 'text-muted-foreground',
+  },
+};
+
 export function WELSuggestions({ matches }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState<Set<string>>(() => {
@@ -50,11 +69,11 @@ export function WELSuggestions({ matches }: Props) {
   if (activeSuggestions.length === 0) {
     return (
       <div className="p-6 text-center">
-        <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-          <Sparkles className="w-5 h-5 text-slate-400" />
+        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+          <Sparkles className="w-5 h-5 text-muted-foreground" />
         </div>
-        <p className="text-sm text-slate-600 font-medium">No new WEL suggestions</p>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-sm text-foreground font-medium">No new WEL suggestions</p>
+        <p className="text-xs text-muted-foreground mt-1">
           The model hasn't detected any potential new estimative phrases yet.
         </p>
       </div>
@@ -66,11 +85,11 @@ export function WELSuggestions({ matches }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-slate-800 flex items-center gap-2">
-            <Lightbulb className="w-4 h-4 text-amber-500" />
+          <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+            <Lightbulb className="w-4 h-4 text-warning" />
             Potential New WEL Terms
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             {highQuality.length} high confidence · {mediumQuality.length} medium · {lowQuality.length} low
           </p>
         </div>
@@ -79,7 +98,7 @@ export function WELSuggestions({ matches }: Props) {
       {/* High Priority Suggestions */}
       {highQuality.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-xs font-medium text-slate-600 uppercase tracking-wide">High Confidence</h4>
+          <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">High Confidence</h4>
           {highQuality.map((suggestion) => (
             <SuggestionCard
               key={suggestion.phrase}
@@ -97,7 +116,7 @@ export function WELSuggestions({ matches }: Props) {
       {/* Medium Priority Suggestions */}
       {mediumQuality.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-xs font-medium text-slate-600 uppercase tracking-wide">Medium Confidence</h4>
+          <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Medium Confidence</h4>
           {mediumQuality.map((suggestion) => (
             <SuggestionCard
               key={suggestion.phrase}
@@ -115,7 +134,7 @@ export function WELSuggestions({ matches }: Props) {
       {/* Low Priority Suggestions */}
       {lowQuality.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-xs font-medium text-slate-600 uppercase tracking-wide">Low Confidence</h4>
+          <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Low Confidence</h4>
           {lowQuality.map((suggestion) => (
             <SuggestionCard
               key={suggestion.phrase}
@@ -150,38 +169,32 @@ function SuggestionCard({
   onDismiss,
   onAdd,
 }: SuggestionCardProps) {
-  const qualityConfig = {
-    high: { color: 'bg-emerald-50 border-emerald-200', badge: 'bg-emerald-100 text-emerald-700' },
-    medium: { color: 'bg-amber-50 border-amber-200', badge: 'bg-amber-100 text-amber-700' },
-    low: { color: 'bg-slate-50 border-slate-200', badge: 'bg-slate-100 text-slate-600' },
-  };
-
-  const config = qualityConfig[quality];
+  const config = QUALITY_COLORS[quality];
   const tierMeta = TIER_META[suggestion.suggestedTier as keyof typeof TIER_META];
 
   return (
-    <div className={cn('border rounded-lg overflow-hidden', config.color)}>
+    <div className={cn('border rounded-lg overflow-hidden', config.card)}>
       <div
         className="p-3 flex items-start gap-3 cursor-pointer"
         onClick={onToggle}
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <code className="text-sm font-semibold text-slate-800">{suggestion.phrase}</code>
+            <code className="text-sm font-semibold text-foreground">{suggestion.phrase}</code>
             <span className={cn('text-[10px] px-1.5 py-0.5 rounded font-medium', config.badge)}>
               {suggestion.confidence}% model conf
             </span>
           </div>
 
           {suggestion.similarTo.length > 0 && (
-            <p className="text-xs text-slate-600 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Similar to: {suggestion.similarTo.join(', ')}
             </p>
           )}
 
           {tierMeta && (
             <div className="flex items-center gap-1.5 mt-1">
-              <span className="text-xs text-slate-500">Suggested tier:</span>
+              <span className="text-xs text-muted-foreground">Suggested tier:</span>
               <span
                 className={cn(
                   'text-[10px] px-1.5 py-0.5 rounded font-medium',
@@ -196,25 +209,25 @@ function SuggestionCard({
         </div>
 
         <ChevronDown
-          className={cn('w-4 h-4 text-slate-400 transition-transform', isExpanded && 'rotate-180')}
+          className={cn('w-4 h-4 text-muted-foreground transition-transform', isExpanded && 'rotate-180')}
         />
       </div>
 
       {/* Expanded Details */}
       {isExpanded && (
-        <div className="px-3 pb-3 border-t border-current border-opacity-20">
+        <div className="px-3 pb-3 border-t border-border/50">
           <div className="pt-3 space-y-3">
             {/* Context */}
             <div>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Context</p>
-              <p className="text-xs text-slate-600 italic">"{suggestion.sentence}"</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Context</p>
+              <p className="text-xs text-foreground italic">"{suggestion.sentence}"</p>
             </div>
 
             {/* Model Reasoning */}
             {suggestion.reasoning && (
               <div>
-                <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Model Reasoning</p>
-                <p className="text-xs text-slate-600">{suggestion.reasoning}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1">Model Reasoning</p>
+                <p className="text-xs text-foreground">{suggestion.reasoning}</p>
               </div>
             )}
 
@@ -238,7 +251,7 @@ function SuggestionCard({
                   e.stopPropagation();
                   onDismiss();
                 }}
-                className="text-slate-500 hover:text-slate-700"
+                className="text-muted-foreground hover:text-foreground"
               >
                 <AlertCircle className="w-3.5 h-3.5" />
                 Dismiss

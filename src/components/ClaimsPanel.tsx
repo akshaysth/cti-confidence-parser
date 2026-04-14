@@ -3,13 +3,21 @@ import { ChevronDown, ChevronUp, Calendar, FileText, Users, AlertTriangle, Check
 import type { IntelligenceClaim } from '../types';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
-import { TIER_META } from '../types';
 
 interface Props {
   claims: IntelligenceClaim[];
   status?: 'idle' | 'loading' | 'success' | 'error';
   error?: string | null;
 }
+
+// Theme-aware tier colors
+const TIER_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  certain: { bg: 'bg-[hsl(var(--tier-certain-bg))]', text: 'text-[hsl(var(--tier-certain))]', border: 'border-[hsl(var(--tier-certain))]' },
+  probable: { bg: 'bg-[hsl(var(--tier-probable-bg))]', text: 'text-[hsl(var(--tier-probable))]', border: 'border-[hsl(var(--tier-probable))]' },
+  even: { bg: 'bg-[hsl(var(--tier-even-bg))]', text: 'text-[hsl(var(--tier-even))]', border: 'border-[hsl(var(--tier-even))]' },
+  unlikely: { bg: 'bg-[hsl(var(--tier-unlikely-bg))]', text: 'text-[hsl(var(--tier-unlikely))]', border: 'border-[hsl(var(--tier-unlikely))]' },
+  remote: { bg: 'bg-[hsl(var(--tier-remote-bg))]', text: 'text-[hsl(var(--tier-remote))]', border: 'border-[hsl(var(--tier-remote))]' },
+};
 
 export function ClaimsPanel({ claims, status = 'idle', error }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -18,11 +26,11 @@ export function ClaimsPanel({ claims, status = 'idle', error }: Props) {
   if (status === 'loading') {
     return (
       <div className="p-8 text-center">
-        <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse">
-          <Loader className="w-5 h-5 text-blue-400 animate-spin" />
+        <div className="w-12 h-12 bg-info/20 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse">
+          <Loader className="w-5 h-5 text-info animate-spin" />
         </div>
-        <p className="text-sm text-slate-600 font-medium">Extracting claims...</p>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-sm text-foreground font-medium">Extracting claims...</p>
+        <p className="text-xs text-muted-foreground mt-1">
           Using AI to identify intelligence assertions
         </p>
       </div>
@@ -33,16 +41,16 @@ export function ClaimsPanel({ claims, status = 'idle', error }: Props) {
   if (status === 'error') {
     return (
       <div className="p-6 text-center">
-        <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-3">
-          <AlertCircle className="w-5 h-5 text-red-400" />
+        <div className="w-12 h-12 bg-error/20 rounded-full flex items-center justify-center mx-auto mb-3">
+          <AlertCircle className="w-5 h-5 text-error" />
         </div>
-        <p className="text-sm text-slate-600 font-medium">Failed to extract claims</p>
+        <p className="text-sm text-foreground font-medium">Failed to extract claims</p>
         {error && (
-          <p className="text-xs text-red-500 mt-1 font-mono bg-red-50 p-2 rounded">
+          <p className="text-xs text-error mt-1 font-mono bg-error/10 p-2 rounded">
             {error}
           </p>
         )}
-        <p className="text-xs text-slate-400 mt-2">
+        <p className="text-xs text-muted-foreground mt-2">
           Check the console for more details
         </p>
       </div>
@@ -86,11 +94,11 @@ export function ClaimsPanel({ claims, status = 'idle', error }: Props) {
   if (claims.length === 0) {
     return (
       <div className="p-6 text-center">
-        <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
-          <FileText className="w-5 h-5 text-slate-400" />
+        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+          <FileText className="w-5 h-5 text-muted-foreground" />
         </div>
-        <p className="text-sm text-slate-600 font-medium">No claims extracted yet</p>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="text-sm text-foreground font-medium">No claims extracted yet</p>
+        <p className="text-xs text-muted-foreground mt-1">
           Claims will be automatically extracted when you analyze text.
         </p>
       </div>
@@ -102,10 +110,10 @@ export function ClaimsPanel({ claims, status = 'idle', error }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-slate-800">
+          <h3 className="text-sm font-medium text-foreground">
             Extracted Intelligence Claims
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             {claims.length} claim{claims.length !== 1 ? 's' : ''} found
           </p>
         </div>
@@ -148,30 +156,30 @@ function ClaimCard({ claim, index, isExpanded, onToggle }: ClaimCardProps) {
   };
 
   const tier = getConfidenceTier(claim.confidenceLevel);
-  const tierMeta = TIER_META[tier];
+  const tierColors = TIER_COLORS[tier];
 
   return (
     <div
       className={cn(
-        'bg-white border rounded-lg overflow-hidden cursor-pointer transition-all',
-        tierMeta.borderColor.replace('border-', 'border-').replace('-800', '-200')
+        'bg-card border rounded-lg overflow-hidden cursor-pointer transition-all hover:border-border/80',
+        tierColors.border
       )}
       onClick={onToggle}
     >
       <div className="p-4">
         <div className="flex items-start gap-3">
-          <span className="text-xs font-mono text-slate-400 mt-0.5">{index + 1}</span>
+          <span className="text-xs font-mono text-muted-foreground mt-0.5">{index + 1}</span>
 
           <div className="flex-1 min-w-0">
-            <p className="text-sm text-slate-800 leading-relaxed">{claim.claim}</p>
+            <p className="text-sm text-foreground leading-relaxed">{claim.claim}</p>
 
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               {/* Confidence Badge */}
               <span
                 className={cn(
                   'text-[10px] px-2 py-0.5 rounded font-medium',
-                  tierMeta.bgColor,
-                  tierMeta.color
+                  tierColors.bg,
+                  tierColors.text
                 )}
               >
                 {claim.confidence} ({claim.confidenceLevel}%)
@@ -179,7 +187,7 @@ function ClaimCard({ claim, index, isExpanded, onToggle }: ClaimCardProps) {
 
               {/* Timeframe */}
               {claim.timeframe && (
-                <span className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                <span className="flex items-center gap-1 text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded">
                   <Calendar className="w-3 h-3" />
                   {claim.timeframe}
                 </span>
@@ -187,7 +195,7 @@ function ClaimCard({ claim, index, isExpanded, onToggle }: ClaimCardProps) {
 
               {/* Evidence count */}
               {claim.evidence.length > 0 && (
-                <span className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                <span className="flex items-center gap-1 text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded">
                   <CheckCircle className="w-3 h-3" />
                   {claim.evidence.length} evidence
                 </span>
@@ -195,7 +203,7 @@ function ClaimCard({ claim, index, isExpanded, onToggle }: ClaimCardProps) {
 
               {/* Entities count */}
               {claim.entities.length > 0 && (
-                <span className="flex items-center gap-1 text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                <span className="flex items-center gap-1 text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded">
                   <Users className="w-3 h-3" />
                   {claim.entities.length} entities
                 </span>
@@ -204,25 +212,25 @@ function ClaimCard({ claim, index, isExpanded, onToggle }: ClaimCardProps) {
           </div>
 
           <ChevronDown
-            className={cn('w-4 h-4 text-slate-400 transition-transform', isExpanded && 'rotate-180')}
+            className={cn('w-4 h-4 text-muted-foreground transition-transform', isExpanded && 'rotate-180')}
           />
         </div>
       </div>
 
       {/* Expanded Details */}
       {isExpanded && (
-        <div className="px-4 pb-4 border-t border-slate-100">
+        <div className="px-4 pb-4 border-t border-border/50">
           <div className="pt-3 space-y-3">
             {/* Evidence */}
             {claim.evidence.length > 0 && (
               <div>
-                <h4 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
                   Evidence
                 </h4>
                 <ul className="space-y-1">
                   {claim.evidence.map((item, i) => (
-                    <li key={i} className="text-xs text-slate-600 flex items-start gap-1.5">
-                      <CheckCircle className="w-3 h-3 text-emerald-500 mt-0.5 shrink-0" />
+                    <li key={i} className="text-xs text-foreground flex items-start gap-1.5">
+                      <CheckCircle className="w-3 h-3 text-success mt-0.5 shrink-0" />
                       {item}
                     </li>
                   ))}
@@ -233,14 +241,14 @@ function ClaimCard({ claim, index, isExpanded, onToggle }: ClaimCardProps) {
             {/* Assumptions */}
             {claim.assumptions.length > 0 && (
               <div>
-                <h4 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5 flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3 text-amber-500" />
+                <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3 text-warning" />
                   Assumptions
                 </h4>
                 <ul className="space-y-1">
                   {claim.assumptions.map((item, i) => (
-                    <li key={i} className="text-xs text-slate-600 flex items-start gap-1.5">
-                      <span className="text-amber-500">•</span>
+                    <li key={i} className="text-xs text-foreground flex items-start gap-1.5">
+                      <span className="text-warning">•</span>
                       {item}
                     </li>
                   ))}
@@ -251,14 +259,14 @@ function ClaimCard({ claim, index, isExpanded, onToggle }: ClaimCardProps) {
             {/* Entities */}
             {claim.entities.length > 0 && (
               <div>
-                <h4 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
                   Entities
                 </h4>
                 <div className="flex flex-wrap gap-1">
                   {claim.entities.map((entity, i) => (
                     <span
                       key={i}
-                      className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full"
+                      className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full"
                     >
                       {entity}
                     </span>
@@ -270,14 +278,14 @@ function ClaimCard({ claim, index, isExpanded, onToggle }: ClaimCardProps) {
             {/* Source References */}
             {claim.sourceReferences.length > 0 && (
               <div>
-                <h4 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
                   Sources
                 </h4>
                 <div className="flex flex-wrap gap-1">
                   {claim.sourceReferences.map((ref, i) => (
                     <span
                       key={i}
-                      className="text-[10px] text-slate-500"
+                      className="text-[10px] text-muted-foreground"
                     >
                       {ref}{i < claim.sourceReferences.length - 1 && ', '}
                     </span>
