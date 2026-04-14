@@ -147,33 +147,33 @@ function NoteCreator({
   };
 
   return (
-    <div className="bg-white p-5 rounded-xl border border-blue-200 shadow-sm ring-1 ring-blue-50 animate-slide-in-from-top">
+    <div className="bg-card p-5 rounded-xl border border-border shadow-sm ring-1 ring-primary/10 animate-slide-in-from-top">
       <div className="flex justify-between items-center mb-4">
-        <span className="uppercase tracking-wider text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded font-meta">
+        <span className="uppercase tracking-wider text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded font-meta">
           Drafting Note
         </span>
-        <span className="font-mono text-sm font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded border border-slate-200">
+        <span className="font-mono text-sm font-bold text-foreground bg-muted px-2 py-1 rounded border border-border">
           {match.entry.kentRange[0]}–{match.entry.kentRange[1]}%
         </span>
       </div>
 
       {/* Context sentence */}
-      <div className="mb-4 bg-slate-50 p-3 rounded-lg border-l-4 border-blue-400 italic text-slate-700 text-sm leading-relaxed font-serif">
+      <div className="mb-4 bg-muted/50 p-3 rounded-lg border-l-4 border-primary italic text-foreground text-sm leading-relaxed font-serif">
         "{match.sentence}"
       </div>
 
       {/* Model status badge */}
       {match.status === 'done' && match.modelConfidence !== null && (
-        <div className="mb-4 flex items-center gap-2 text-xs text-slate-600 font-meta">
+        <div className="mb-4 flex items-center gap-2 text-xs text-muted-foreground font-meta">
           {match.modelIsWEL
-            ? <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />
-            : <XCircle className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
+            ? <CheckCircle className="w-3.5 h-3.5 text-green-600 dark:text-green-400 shrink-0" />
+            : <XCircle className="w-3.5 h-3.5 text-muted-foreground shrink-0" />}
           Model: <strong>{match.modelConfidence}%</strong> confidence ·{' '}
           {match.modelIsWEL ? 'WEL confirmed' : 'Not WEL'}
         </div>
       )}
       {match.status === 'analyzing' && (
-        <div className="mb-4 flex items-center gap-2 text-xs text-slate-500 font-meta">
+        <div className="mb-4 flex items-center gap-2 text-xs text-muted-foreground font-meta">
           <Loader className="w-3 h-3 animate-spin" />
           Model analyzing…
         </div>
@@ -187,7 +187,7 @@ function NoteCreator({
 
       <div className="space-y-3">
         <div>
-          <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1 font-meta">
+          <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1 font-meta">
             Note Title
           </label>
           <input
@@ -195,12 +195,12 @@ function NoteCreator({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g., APT29 physical breach likelihood"
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
+            className="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-ring outline-none text-sm bg-card text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1 font-meta">
+          <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1 font-meta">
             Analyst Commentary
           </label>
           <textarea
@@ -208,12 +208,12 @@ function NoteCreator({
             onChange={(e) => setCommentary(e.target.value)}
             placeholder="Add your insights…"
             rows={3}
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm resize-none bg-white"
+            className="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-ring outline-none text-sm resize-none bg-card text-foreground placeholder:text-muted-foreground"
           />
         </div>
 
         <div>
-          <label className="flex items-center gap-1 text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1 font-meta">
+          <label className="flex items-center gap-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1 font-meta">
             <Tag className="w-3 h-3" /> Tags
           </label>
           <input
@@ -221,17 +221,17 @@ function NoteCreator({
             value={tags}
             onChange={(e) => setTags(e.target.value)}
             placeholder="MITRE ATT&CK, threat actor, … (comma-separated)"
-            className="w-full px-3 py-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white"
-          />
-        </div>
+            className="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-ring outline-none text-sm bg-card text-foreground placeholder:text-muted-foreground"
+      />
+    </div>
 
-        <div className="pt-1 flex justify-end gap-2">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition"
-          >
-            Cancel
-          </button>
+    <div className="pt-1 flex justify-end gap-2">
+      <button
+        onClick={onCancel}
+        className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition"
+      >
+        Cancel
+      </button>
           <button
             onClick={handleSave}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium flex items-center gap-2 transition"
@@ -311,15 +311,15 @@ const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>('notes');
   return (
     <div className="flex h-full overflow-hidden">
       {/* ── Left pane: highlighted report text ── */}
-      <div className="w-3/5 border-r border-slate-200 flex flex-col bg-white">
+      <div className="w-3/5 border-r border-border flex flex-col bg-card">
         {/* Toolbar */}
-        <div className="px-6 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
+        <div className="px-6 py-3 border-b border-border bg-muted/50 flex items-center justify-between shrink-0">
           <div>
-            <h2 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-              <FileText className="w-4 h-4 text-slate-400" />
+            <h2 className="font-bold text-foreground text-sm flex items-center gap-2">
+              <FileText className="w-4 h-4 text-muted-foreground" />
               Intelligence Report
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5 font-meta">
+            <p className="text-xs text-muted-foreground mt-0.5 font-meta">
               {matches.length} WEL phrase{matches.length !== 1 ? 's' : ''} detected
               {pending > 0 && ` · ${pending} analyzing…`}
               {pending === 0 && matches.length > 0 && ` · ${confirmed} model-confirmed`}
@@ -329,30 +329,36 @@ const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>('notes');
           <div className="flex items-center gap-3">
             {/* Legend */}
             <div className="hidden lg:flex gap-1.5 text-[10px] font-meta">
-              <span className="px-1.5 py-0.5 bg-orange-100 text-orange-800 rounded border border-orange-200">Certain</span>
-              <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-800 rounded border border-yellow-200">Probable</span>
-              <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded border border-blue-200">Even</span>
-              <span className="px-1.5 py-0.5 bg-teal-100 text-teal-800 rounded border border-teal-200">Unlikely</span>
-              <span className="px-1.5 py-0.5 bg-green-100 text-green-800 rounded border border-green-200">Remote</span>
+              <span className="px-1.5 py-0.5 bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800 rounded border border-orange-200">Certain</span>
+              <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800 rounded border border-yellow-200">Probable</span>
+              <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800 rounded border border-blue-200">Even</span>
+              <span className="px-1.5 py-0.5 bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300 dark:border-teal-800 rounded border border-teal-200">Unlikely</span>
+              <span className="px-1.5 py-0.5 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800 rounded border border-green-200">Remote</span>
             </div>
 
-            <Button variant="outline" size="sm" onClick={handleExport} title="Export JSON">
-              <Download className="w-3.5 h-3.5" />
+            <Button 
+              variant="subtle" 
+              size="icon" 
+              onClick={handleExport} 
+              title="Export JSON"
+              className="shrink-0"
+            >
+              <Download className="w-4 h-4" />
             </Button>
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={onClear}
-              className="text-muted-foreground hover:text-destructive"
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
               title="Clear"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-4 h-4" />
             </Button>
           </div>
         </div>
 
         {/* Report body */}
-        <div className="flex-1 overflow-y-auto p-8 text-slate-800 leading-relaxed text-base font-serif">
+        <div className="flex-1 overflow-y-auto p-8 text-foreground leading-relaxed text-base font-serif">
           {segments.length > 0 ? (
             segments.map((seg, i) =>
               seg.type === 'text' ? (
@@ -376,12 +382,12 @@ const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>('notes');
                 <button
                   key={m.id}
                   onClick={() => handleSelectMatch(m)}
-                  className={cn(
-                    'w-full text-left p-4 rounded-lg border transition-colors',
-                    activeMatchId === m.id
-                      ? 'border-blue-300 bg-blue-50'
-                      : 'border-slate-200 bg-white hover:border-slate-300',
-                  )}
+                className={cn(
+                  'w-full text-left p-4 rounded-lg border transition-colors',
+                  activeMatchId === m.id
+                    ? 'border-primary/40 bg-primary/8'
+                    : 'border-border bg-card hover:border-primary/30',
+                )}
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-meta text-muted-foreground/60 w-5 text-right">{i + 1}</span>
@@ -393,7 +399,7 @@ const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>('notes');
                       {m.entry.tier}
                     </span>
                   </div>
-                  <p className="text-sm font-serif text-slate-600 pl-7 line-clamp-2 italic">
+                  <p className="text-sm font-serif text-muted-foreground pl-7 line-clamp-2 italic">
                     {m.sentence}
                   </p>
                 </button>
@@ -403,10 +409,10 @@ const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>('notes');
         </div>
       </div>
 
-{/* ── Right pane: note creator ── */}
-<div className="w-2/5 flex flex-col bg-slate-50">
-{/* Tab Navigation */}
-<div className="px-6 py-3 border-b border-slate-200 bg-white shrink-0">
+    {/* ── Right pane: note creator ── */}
+    <div className="w-2/5 flex flex-col bg-muted/50">
+      {/* Tab Navigation */}
+      <div className="px-6 py-3 border-b border-border bg-card shrink-0">
 <div className="flex items-center gap-1">
 <button
 onClick={() => setRightPanelTab('notes')}
@@ -485,15 +491,15 @@ Visualizations
 
         {rightPanelTab === 'notes' && (
 <>
-{!activeMatch ? (
-<div className="flex flex-col items-center justify-center h-48 text-slate-400 text-center px-8 border-2 border-dashed border-slate-200 rounded-xl">
-<Percent className="w-7 h-7 mb-3 text-slate-300" />
-<p className="text-sm font-meta">
-Select a highlighted WEL phrase to extract context and create an analyst note.
-</p>
-</div>
-) : (
-<NoteCreator
+        {!activeMatch ? (
+          <div className="flex flex-col items-center justify-center h-48 text-muted-foreground text-center px-8 border-2 border-dashed border-border rounded-xl">
+            <Percent className="w-7 h-7 mb-3 text-muted-foreground" />
+            <p className="text-sm font-meta">
+              Select a highlighted WEL phrase to extract context and create an analyst note.
+            </p>
+          </div>
+        ) : (
+          <NoteCreator
 key={activeMatch.id}
 match={activeMatch}
 sessionId={sessionId}
@@ -502,55 +508,55 @@ onCancel={() => setActiveMatchId(null)}
 />
 )}
 
-{/* Notes saved this session */}
-{sessionNotes.length > 0 && (
-<div>
-<h3 className="text-xs font-bold font-meta text-slate-600 uppercase tracking-wider mb-3 border-b border-slate-200 pb-2">
-Saved · This Report
-</h3>
-<div className="space-y-2">
-{sessionNotes.map((note) => (
-<div
-key={note.id}
-className="bg-white p-4 border border-slate-200 rounded-lg shadow-sm"
->
-<div className="flex justify-between items-start mb-1.5">
-<h4 className="font-semibold text-slate-800 text-sm leading-snug">{note.title}</h4>
-<span className="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 shrink-0 ml-2">
-{note.kentRange[0]}–{note.kentRange[1]}%
-</span>
-</div>
-<p className="text-xs text-slate-500 mb-2 italic line-clamp-2 font-serif">
-"{note.sentence}"
-</p>
-{note.tags && (
-<div className="flex flex-wrap gap-1">
-{note.tags.split(',').map((tag, i) => (
-<span
-key={i}
-className="text-[10px] font-meta bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200"
->
-{tag.trim()}
-</span>
-))}
-</div>
-)}
-<div className="flex items-center gap-1 mt-2 text-[10px] font-meta text-slate-400">
-<Clock className="w-3 h-3" /> {note.date}
-</div>
-</div>
-))}
-</div>
-</div>
-)}
+          {/* Notes saved this session */}
+          {sessionNotes.length > 0 && (
+            <div>
+              <h3 className="text-xs font-bold font-meta text-muted-foreground uppercase tracking-wider mb-3 border-b border-border pb-2">
+                Saved · This Report
+              </h3>
+              <div className="space-y-2">
+                {sessionNotes.map((note) => (
+                  <div
+                    key={note.id}
+                    className="bg-card p-4 border border-border rounded-lg shadow-sm"
+                  >
+                    <div className="flex justify-between items-start mb-1.5">
+                      <h4 className="font-semibold text-foreground text-sm leading-snug">{note.title}</h4>
+                      <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded border-input shrink-0 ml-2">
+                        {note.kentRange[0]}–{note.kentRange[1]}%
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-2 italic line-clamp-2 font-serif">
+                      "{note.sentence}"
+                    </p>
+                    {note.tags && (
+                      <div className="flex flex-wrap gap-1">
+                        {note.tags.split(',').map((tag, i) => (
+                          <span
+                            key={i}
+                            className="text-[10px] font-meta bg-muted text-muted-foreground px-2 py-0.5 rounded-full border-border"
+                          >
+                            {tag.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1 mt-2 text-[10px] font-meta text-muted-foreground">
+                      <Clock className="w-3 h-3" /> {note.date}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-{/* Analyzing indicator */}
-{isAnalyzing && (
-<div className="flex items-center gap-2 text-xs font-meta text-slate-500 justify-center py-2">
-<Loader className="w-3 h-3 animate-spin" />
-Model analysis in progress…
-</div>
-)}
+          {/* Analyzing indicator */}
+          {isAnalyzing && (
+            <div className="flex items-center gap-2 text-xs font-meta text-muted-foreground justify-center py-2">
+              <Loader className="w-3 h-3 animate-spin" />
+              Model analysis in progress…
+            </div>
+          )}
 </>
 )}
 </div>
