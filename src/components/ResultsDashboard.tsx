@@ -69,22 +69,27 @@ export function ResultsDashboard({ matches, sourceText, onClear }: Props) {
           <h2 className="font-sans text-sm font-semibold text-foreground">
             {matches.length} WEL instance{matches.length !== 1 ? 's' : ''} detected
           </h2>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="w-3.5 h-3.5" />
-              Export JSON
-            </Button>
-            <Button variant="ghost" size="sm" onClick={onClear} className="text-muted-foreground hover:text-destructive">
-              <Trash2 className="w-3.5 h-3.5" />
-              Clear
-            </Button>
-          </div>
+      <div className="flex items-center gap-2">
+        <Button variant="subtle" size="sm" onClick={handleExport} className="gap-2">
+          <Download className="w-3.5 h-3.5" />
+          Export JSON
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={onClear} 
+          className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          title="Clear results"
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
         </div>
 
         <SummaryStats matches={matches} />
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-1 mb-4 border-b border-slate-200">
+        <div className="flex items-center gap-1 mb-4 border-b border-border">
           <button
             onClick={() => setActiveTab('matches')}
             className={cn(
@@ -125,7 +130,7 @@ export function ResultsDashboard({ matches, sourceText, onClear }: Props) {
             ))}
           </div>
         ) : (
-          <div className="bg-white border border-slate-200 rounded-lg p-4">
+          <div className="bg-card border border-border rounded-lg p-4">
             <ConsistencyPanel matches={matches} />
           </div>
         )}
