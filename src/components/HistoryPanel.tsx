@@ -93,36 +93,36 @@ return (
 <DialogContent className="mx-4 max-w-xl">
 <DialogHeader className="flex flex-row items-center justify-between">
 <DialogTitle>Analysis History</DialogTitle>
-{records.length >= 2 && (
-<Button
-variant={compareMode ? 'default' : 'outline'}
-size="sm"
-onClick={() => {
-setCompareMode(!compareMode);
-setSelectedForCompare(null);
-}}
-className="flex items-center gap-1.5"
->
-<GitCompare className="w-3.5 h-3.5" />
-{compareMode ? 'Cancel' : 'Compare'}
-</Button>
-)}
+  {records.length >= 2 && (
+  <Button
+    variant={compareMode ? 'accent' : 'subtle'}
+    size="sm"
+    onClick={() => {
+      setCompareMode(!compareMode);
+      setSelectedForCompare(null);
+    }}
+    className="flex items-center gap-1.5"
+  >
+    <GitCompare className="w-3.5 h-3.5" />
+    {compareMode ? 'Cancel' : 'Compare'}
+  </Button>
+  )}
 </DialogHeader>
 
-{compareMode && (
-<div className="px-6 py-3 bg-amber-50 border-b border-amber-100">
-<p className="text-sm text-amber-800">
-{selectedForCompare ? (
-<>
-<strong>{selectedForCompare.source_ref ?? `Analysis #${selectedForCompare.id}`}</strong> selected.
-Click another to compare.
-</>
-) : (
-<>Select two analyses to compare</>
-)}
-</p>
-</div>
-)}
+        {compareMode && (
+          <div className="px-6 py-3 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-800">
+            <p className="text-sm text-amber-800 dark:text-amber-300">
+              {selectedForCompare ? (
+                <>
+                  <strong>{selectedForCompare.source_ref ?? `Analysis #${selectedForCompare.id}`}</strong> selected.
+                  Click another to compare.
+                </>
+              ) : (
+                <>Select two analyses to compare</>
+              )}
+            </p>
+          </div>
+        )}
 
 <div className="px-6 pb-5">
 {loading ? (
@@ -152,15 +152,15 @@ handleLoad(r.id);
 }
 }}
 onClickCapture={compareMode ? (e) => handleSelectForCompare(e, r) : undefined}
-disabled={loadingId === r.id}
-className={[
-'w-full text-left flex items-center gap-3 px-4 py-3 rounded-sm transition-colors disabled:opacity-50 group',
-compareMode
-? isSelected
-? 'bg-amber-100 border-amber-300 border-l-[3px] border-l-amber-500'
-: 'bg-surface-low hover:bg-amber-50 border-l-[3px] border-l-transparent hover:border-l-amber-300 cursor-pointer'
-: 'bg-surface-low hover:bg-muted border-l-[3px] border-l-primary/20 hover:border-l-primary',
-].join(' ')}
+  disabled={loadingId === r.id}
+  className={[
+    'w-full text-left flex items-center gap-3 px-4 py-3 rounded-sm transition-colors disabled:opacity-50 group',
+    compareMode
+      ? isSelected
+        ? 'bg-amber-100 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700 border-l-[3px] border-l-amber-500 dark:border-l-amber-400'
+        : 'bg-muted/50 hover:bg-amber-50/50 dark:hover:bg-amber-900/10 border-l-[3px] border-l-transparent hover:border-l-amber-300 dark:hover:border-l-amber-600 cursor-pointer'
+      : 'bg-muted/30 hover:bg-muted/50 border-l-[3px] border-l-primary/20 hover:border-l-primary',
+  ].join(' ')}
 >
 <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
 
@@ -175,13 +175,13 @@ compareMode
 </p>
 </div>
 
-{compareMode ? (
-isSelected && (
-<span className="text-xs font-medium text-amber-700 bg-amber-200 px-2 py-0.5 rounded">
-Selected
-</span>
-)
-) : loadingId === r.id ? (
+              {compareMode ? (
+                isSelected && (
+                  <span className="text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-200 dark:bg-amber-900/30 px-2 py-0.5 rounded">
+                    Selected
+                  </span>
+                )
+              ) : loadingId === r.id ? (
 <Loader className="w-3.5 h-3.5 text-primary animate-spin shrink-0" />
 ) : (
 <button
