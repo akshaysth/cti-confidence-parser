@@ -178,6 +178,8 @@ export default function App() {
   const [showHistory, setShowHistory] = useState(false);
 const [matches, setMatches] = useState<WELMatch[]>([]);
 const [claims, setClaims] = useState<IntelligenceClaim[]>([]);
+  const [claimsStatus, setClaimsStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [claimsError, setClaimsError] = useState<string | null>(null);
 const [sourceText, setSourceText] = useState('');
 const [isAnalyzing, setIsAnalyzing] = useState(false);
 const [sessionId, setSessionId] = useState('');
@@ -222,19 +224,26 @@ const abortRef = useRef(false);
     }));
 
 setMatches(initial);
-setIsAnalyzing(true);
-setClaims([]); // Clear previous claims
+  setIsAnalyzing(true);
+  setClaims([]); // Clear previous claims
+  setClaimsStatus('loading');
+  setClaimsError(null);
 
-const finalMatches = initial.map((m) => ({ ...m }));
+  const finalMatches = initial.map((m) => ({ ...m }));
 
-// Extract intelligence claims in parallel with WEL analysis
-const claimsPromise = extractClaims(config, text).then((extractedClaims) => {
-  if (!abortRef.current) {
-    setClaims(extractedClaims);
-  }
-}).catch((err) => {
-  console.error('Failed to extract claims:', err);
-});
+  // Extract intelligence claims in parallel with WEL analysis
+  const claimsPromise = extractClaims(config, text).then((extractedClaims) => {
+    if (!abortRef.current) {
+      setClaims(extractedClaims);
+      setClaimsStatus(extractedClaims.length > 0 ? 'success' : 'success');
+      console.log('[Claims] Extracted', extractedClaims.length, 'claims');
+    }
+  }).catch((err) => {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.error('[Claims] Failed to extract claims:', err);
+    setClaimsStatus('error');
+    setClaimsError(errorMsg);
+  });
 
 // Process all matches in parallel for better performance
 await Promise.all([
@@ -403,17 +412,19 @@ sourceText: text,
         )}
 
 {currentView === 'workspace' && (
-<WorkspaceView
-matches={matches}
-claims={claims}
-sourceText={sourceText}
-sessionId={sessionId}
-isAnalyzing={isAnalyzing}
-notes={notes}
-onSaveNote={handleSaveNote}
-onClear={handleClear}
-/>
-)}
+          <WorkspaceView
+            matches={matches}
+            claims={claims}
+            claimsStatus={claimsStatus}
+            claimsError={claimsError}
+            sourceText={sourceText}
+            sessionId={sessionId}
+            isAnalyzing={isAnalyzing}
+            notes={notes}
+            onSaveNote={handleSaveNote}
+            onClear={handleClear}
+          />
+        )}
 
         {currentView === 'library' && (
           <div className="h-full overflow-y-auto">

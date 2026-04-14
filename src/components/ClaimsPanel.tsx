@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Calendar, FileText, Users, AlertTriangle, CheckCircle, Download } from 'lucide-react';
+import { ChevronDown, ChevronUp, Calendar, FileText, Users, AlertTriangle, CheckCircle, Download, Loader, AlertCircle } from 'lucide-react';
 import type { IntelligenceClaim } from '../types';
 import { cn } from '../lib/utils';
 import { Button } from './ui/button';
@@ -7,10 +7,47 @@ import { TIER_META } from '../types';
 
 interface Props {
   claims: IntelligenceClaim[];
+  status?: 'idle' | 'loading' | 'success' | 'error';
+  error?: string | null;
 }
 
-export function ClaimsPanel({ claims }: Props) {
+export function ClaimsPanel({ claims, status = 'idle', error }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Show loading state
+  if (status === 'loading') {
+    return (
+      <div className="p-8 text-center">
+        <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse">
+          <Loader className="w-5 h-5 text-blue-400 animate-spin" />
+        </div>
+        <p className="text-sm text-slate-600 font-medium">Extracting claims...</p>
+        <p className="text-xs text-slate-400 mt-1">
+          Using AI to identify intelligence assertions
+        </p>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (status === 'error') {
+    return (
+      <div className="p-6 text-center">
+        <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-3">
+          <AlertCircle className="w-5 h-5 text-red-400" />
+        </div>
+        <p className="text-sm text-slate-600 font-medium">Failed to extract claims</p>
+        {error && (
+          <p className="text-xs text-red-500 mt-1 font-mono bg-red-50 p-2 rounded">
+            {error}
+          </p>
+        )}
+        <p className="text-xs text-slate-400 mt-2">
+          Check the console for more details
+        </p>
+      </div>
+    );
+  }
 
   const handleExportSTIX = () => {
     // Simple STIX export

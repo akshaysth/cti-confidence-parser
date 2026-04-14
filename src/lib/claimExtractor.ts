@@ -1,16 +1,4 @@
-import type { ModelConfig } from '../types';
-
-export interface IntelligenceClaim {
-  id: string;
-  claim: string;
-  confidence: string;
-  confidenceLevel: number;
-  timeframe?: string;
-  evidence: string[];
-  assumptions: string[];
-  sourceReferences: string[];
-  entities: string[]; // Organizations, actors, locations mentioned
-}
+import type { ModelConfig, IntelligenceClaim } from '../types';
 
 const CLAIM_PROMPT = `You are an expert intelligence analyst. Extract structured intelligence claims from the provided text.
 
@@ -23,7 +11,12 @@ For each claim, identify:
 - Source references (report sections, citations)
 - Entities mentioned (organizations, threat actors, locations)
 
-Respond ONLY with a valid JSON array of claims. Each claim should follow this structure:
+IMPORTANT: Respond ONLY with a valid JSON array. Do NOT wrap the response in markdown code blocks (no triple backticks). Return the raw JSON array only.
+
+Example format:
+[{"claim": "...", "confidence": "...", "confidenceLevel": 65, ...}]
+
+Each claim should follow this structure:
 {
   "claim": "string - the specific assertion",
   "confidence": "string - confidence term used",
@@ -40,30 +33,138 @@ Rules:
 - Each claim should be atomic (single assertion)
 - Convert confidence terms to numbers: certain=93, probable=65, likely=55, possible=37, unlikely=30, remote=10
 - Include empty arrays [] if no items for a field
-- Return an empty array [] if no claims are found`;
+- Return an empty array [] if no claims are found
+- NO markdown formatting, NO code blocks, ONLY raw JSON`;
+
+
+function cleanMarkdownCodeBlocks(content: string): string {
+  // Remove markdown code block wrappers (```json or ```)
+  return content
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/\s*```\s*$/i, '')
+    .trim();
+}
+
+function isValidJsonArray(content: string): boolean {
+  // Check for basic structural issues
+  const openBrackets = (content.match(/\[/g) || []).length;
+  const closeBrackets = (content.match(/\]/g) || []).length;
+  const openBraces = (content.match(/\{/g) || []).length;
+  const closeBraces = (content.match(/\}/g) || []).length;
+
+  return openBrackets === closeBrackets && openBraces === closeBraces;
+}
+
+function attemptToFixTruncatedJson(content: string): string | null {
+  // Try to complete a truncated JSON array
+  let fixed = content.trim();
+
+  // Count unclosed structures
+  let openBrackets = (fixed.match(/\[/g) || []).length;
+  let closeBrackets = (fixed.match(/\]/g) || []).length;
+  let openBraces = (fixed.match(/\{/g) || []).length;
+  let closeBraces = (fixed.match(/\}/g) || []).length;
+
+  // Add missing closing braces and brackets
+  while (closeBraces < openBraces) {
+    fixed += '}';
+    closeBraces++;
+  }
+  while (closeBrackets < openBrackets) {
+    fixed += ']';
+    closeBrackets++;
+  }
+
+  // Remove trailing comma if present
+  fixed = fixed.replace(/,\s*([}\]])/g, '$1');
+
+  return fixed;
+}
 
 function parseClaimResponse(content: string): IntelligenceClaim[] {
-  const jsonMatch = content.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) return [];
+  // First, try to clean markdown wrappers
+  const cleaned = cleanMarkdownCodeBlocks(content);
+  console.log('[Claims] Cleaned content (first 500 chars):', cleaned.substring(0, 500));
+  console.log('[Claims] Content length:', cleaned.length);
+  console.log('[Claims] Content ends with:', cleaned.slice(-50));
 
-  try {
-    const parsed = JSON.parse(jsonMatch[0]);
-    if (!Array.isArray(parsed)) return [];
+  // Check if JSON looks complete
+  if (!isValidJsonArray(cleaned)) {
+    console.log('[Claims] JSON appears incomplete (unbalanced brackets/braces)');
+    const fixed = attemptToFixTruncatedJson(cleaned);
+    if (fixed) {
+      console.log('[Claims] Attempting to fix truncated JSON...');
+      try {
+        const parsed = JSON.parse(fixed);
+        if (Array.isArray(parsed)) {
+          console.log(`[Claims] Successfully parsed ${parsed.length} claims from fixed JSON`);
+          return processClaims(parsed);
+        }
+      } catch (err) {
+        console.log('[Claims] Could not fix truncated JSON, trying partial extraction...');
+      }
+    }
+  }
 
-    return parsed.map((item: Record<string, unknown>, index: number) => ({
-      id: `claim-${index}`,
-      claim: String(item.claim || ''),
-      confidence: String(item.confidence || 'unknown'),
-      confidenceLevel: Math.max(0, Math.min(100, Number(item.confidenceLevel) || 0)),
-      timeframe: item.timeframe ? String(item.timeframe) : undefined,
-      evidence: Array.isArray(item.evidence) ? item.evidence.map(String) : [],
-      assumptions: Array.isArray(item.assumptions) ? item.assumptions.map(String) : [],
-      sourceReferences: Array.isArray(item.sourceReferences) ? item.sourceReferences.map(String) : [],
-      entities: Array.isArray(item.entities) ? item.entities.map(String) : [],
-    })).filter((c: IntelligenceClaim) => c.claim.length > 0);
-  } catch {
+  // Then find the JSON array - be more specific to avoid nested bracket issues
+  const jsonMatch = cleaned.match(/^\s*(\[[\s\S]*\])\s*$/);
+  if (!jsonMatch) {
+    console.log('[Claims] No JSON array match found. Trying alternative...');
+    // Try finding array more loosely
+    const looseMatch = cleaned.match(/\[[\s\S]*$/);
+    if (!looseMatch) {
+      console.log('[Claims] No JSON array found in response');
+      return [];
+    }
+    console.log('[Claims] Found loose match, attempting parse...');
+    try {
+      // Try to fix and parse
+      const fixed = attemptToFixTruncatedJson(looseMatch[0]) || looseMatch[0];
+      const parsed = JSON.parse(fixed);
+      if (!Array.isArray(parsed)) {
+        console.log('[Claims] Parsed content is not an array');
+        return [];
+      }
+      console.log(`[Claims] Parsed ${parsed.length} claims from loose match`);
+      return processClaims(parsed);
+    } catch (err) {
+      console.error('[Claims] JSON parse error with loose match:', err);
+    }
     return [];
   }
+
+  try {
+    const parsed = JSON.parse(jsonMatch[1]);
+    if (!Array.isArray(parsed)) {
+      console.log('[Claims] Parsed content is not an array');
+      return [];
+    }
+
+    console.log(`[Claims] Parsed ${parsed.length} claims from response`);
+    return processClaims(parsed);
+  } catch (err) {
+    console.error('[Claims] JSON parse error:', err);
+    console.error('[Claims] Attempted to parse:', jsonMatch[1]?.substring(0, 300));
+    return [];
+  }
+}
+
+function processClaims(parsed: unknown[]): IntelligenceClaim[] {
+  return parsed.map((item: unknown, index: number) => {
+    const record = item as Record<string, unknown>;
+    return {
+      id: `claim-${index}`,
+      claim: String(record.claim || ''),
+      confidence: String(record.confidence || 'unknown'),
+      confidenceLevel: Math.max(0, Math.min(100, Number(record.confidenceLevel) || 0)),
+      timeframe: record.timeframe ? String(record.timeframe) : undefined,
+      evidence: Array.isArray(record.evidence) ? record.evidence.map(String) : [],
+      assumptions: Array.isArray(record.assumptions) ? record.assumptions.map(String) : [],
+      sourceReferences: Array.isArray(record.sourceReferences) ? record.sourceReferences.map(String) : [],
+      entities: Array.isArray(record.entities) ? record.entities.map(String) : [],
+    };
+  }).filter((c: IntelligenceClaim) => c.claim.length > 0);
 }
 
 async function extractClaimsOllama(
@@ -80,13 +181,16 @@ async function extractClaimsOllama(
         { role: 'user', content: `Extract intelligence claims from this text:\n\n${text}` },
       ],
       stream: false,
-      format: 'json',
+      // Note: Some models don't respect format: 'json' and wrap in markdown
     }),
   });
 
   if (!res.ok) throw new Error(`Ollama ${res.status}: ${await res.text()}`);
   const data = await res.json();
+  console.log('[Claims] Full API response:', data);
   const content: string = data.message?.content ?? '';
+  console.log('[Claims] Raw content length:', content.length);
+  console.log('[Claims] Full content:', content);
   return parseClaimResponse(content);
 }
 
@@ -115,7 +219,10 @@ async function extractClaimsOpenAI(
 
   if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
   const data = await res.json();
+  console.log('[Claims] Full API response:', data);
   const content: string = data.choices?.[0]?.message?.content ?? '';
+  console.log('[Claims] Raw content length:', content.length);
+  console.log('[Claims] Full content:', content);
   return parseClaimResponse(content);
 }
 

@@ -29,6 +29,8 @@ export interface AnalystNote {
 interface Props {
   matches: WELMatch[];
   claims: IntelligenceClaim[];
+  claimsStatus?: 'idle' | 'loading' | 'success' | 'error';
+  claimsError?: string | null;
   sourceText: string;
   sessionId: string;
   isAnalyzing: boolean;
@@ -244,16 +246,19 @@ function NoteCreator({
 
 // ── Main WorkspaceView ────────────────────────────────────────────────────────
 
-type RightPanelTab = 'notes' | 'visualizations' | 'suggestions';
+type RightPanelTab = 'notes' | 'visualizations' | 'suggestions' | 'claims';
 
 export function WorkspaceView({
-matches,
-sourceText,
-sessionId,
-isAnalyzing,
-notes,
-onSaveNote,
-onClear,
+  matches,
+  claims,
+  claimsStatus = 'idle',
+  claimsError,
+  sourceText,
+  sessionId,
+  isAnalyzing,
+  notes,
+  onSaveNote,
+  onClear,
 }: Props) {
 const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
 const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>('notes');
@@ -428,19 +433,42 @@ rightPanelTab === 'visualizations'
 Visualizations
 </button>
 <button
-onClick={() => setRightPanelTab('suggestions')}
-className={cn(
-'flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors border-b-2 -mb-[1px]',
-rightPanelTab === 'suggestions'
-? 'border-primary text-foreground'
-: 'border-transparent text-muted-foreground hover:text-foreground'
-)}
->
-<Lightbulb className="w-4 h-4" />
-Suggestions
-</button>
-</div>
-</div>
+          onClick={() => setRightPanelTab('suggestions')}
+          className={cn(
+            'flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors border-b-2 -mb-[1px]',
+            rightPanelTab === 'suggestions'
+            ? 'border-primary text-foreground'
+            : 'border-transparent text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <Lightbulb className="w-4 h-4" />
+          Suggestions
+        </button>
+        <button
+          onClick={() => setRightPanelTab('claims')}
+          className={cn(
+            'flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors border-b-2 -mb-[1px]',
+            rightPanelTab === 'claims'
+            ? 'border-primary text-foreground'
+            : 'border-transparent text-muted-foreground hover:text-foreground'
+          )}
+        >
+          <FileSearch className="w-4 h-4" />
+          Claims
+          {claimsStatus === 'loading' && (
+            <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+          )}
+          {claimsStatus === 'error' && (
+            <span className="w-2 h-2 bg-red-400 rounded-full" />
+          )}
+          {claimsStatus === 'success' && claims.length > 0 && (
+            <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+              {claims.length}
+            </span>
+          )}
+        </button>
+      </div>
+    </div>
 
 <div className="flex-1 overflow-y-auto p-5 space-y-5">
 {rightPanelTab === 'visualizations' && (
@@ -448,10 +476,14 @@ Suggestions
 )}
 
 {rightPanelTab === 'suggestions' && (
-<WELSuggestions matches={matches} />
-)}
+          <WELSuggestions matches={matches} />
+        )}
 
-{rightPanelTab === 'notes' && (
+        {rightPanelTab === 'claims' && (
+          <ClaimsPanel claims={claims} status={claimsStatus} error={claimsError} />
+        )}
+
+        {rightPanelTab === 'notes' && (
 <>
 {!activeMatch ? (
 <div className="flex flex-col items-center justify-center h-48 text-slate-400 text-center px-8 border-2 border-dashed border-slate-200 rounded-xl">
