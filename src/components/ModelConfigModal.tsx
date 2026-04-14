@@ -223,15 +223,30 @@ export function ModelConfigModal({ config, onSave, onClose }: Props) {
       )}
     </div>
 
-    <DialogFooter>
-          <Button variant="outline" size="sm" onClick={handleTest} disabled={testState === 'testing'}>
-            <Plug className="w-3.5 h-3.5" />
-            Test Connection
-          </Button>
-          <Button size="sm" onClick={handleSave}>
-            Save Settings
-          </Button>
-        </DialogFooter>
+  <DialogFooter>
+    <Button 
+      variant="subtle" 
+      size="sm" 
+      onClick={handleTest} 
+      disabled={testState === 'testing'}
+      className="gap-2"
+    >
+      {testState === 'testing' ? (
+        <Loader className="w-3.5 h-3.5 animate-spin" />
+      ) : (
+        <Plug className="w-3.5 h-3.5" />
+      )}
+      Test Connection
+    </Button>
+    <Button 
+      variant="accent" 
+      size="sm" 
+      onClick={handleSave}
+      className="shadow-md"
+    >
+      Save Settings
+    </Button>
+  </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -56,8 +56,8 @@ function NavItem({
         active
           ? 'bg-blue-600/80 text-white border-r-[3px] border-white/60'
           : disabled
-          ? 'text-white/20 cursor-not-allowed'
-          : 'text-white/55 hover:bg-white/8 hover:text-white',
+          ? 'text-sidebar-text-dim/20 cursor-not-allowed'
+          : 'text-sidebar-text-dim hover:bg-sidebar-hover hover:text-sidebar-text',
       )}
     >
       <Icon className="w-4 h-4 shrink-0" />
@@ -82,36 +82,36 @@ function LibraryView({ notes }: { notes: AnalystNote[] }) {
     <div className="p-8 max-w-6xl mx-auto flex flex-col h-full">
       <div className="flex justify-between items-end mb-6 shrink-0">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2 mb-1">
-            <BookOpen className="w-5 h-5 text-blue-600" />
+          <h1 className="text-xl font-bold text-foreground flex items-center gap-2 mb-1">
+            <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             Knowledge Base
           </h1>
-          <p className="text-slate-500 text-sm font-meta">
+          <p className="text-muted-foreground text-sm font-meta">
             {notes.length} analyst note{notes.length !== 1 ? 's' : ''} stored locally.
           </p>
         </div>
         <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search notes, tags…"
-            className="pl-9 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm w-56 bg-white"
+            className="pl-9 pr-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring outline-none text-sm w-56 bg-card text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center text-slate-400 text-sm font-meta">
+        <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm font-meta">
           {notes.length === 0
             ? 'No notes yet. Save analyst notes from the Workspace.'
             : 'No notes match your search.'}
         </div>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex-1 overflow-y-auto">
-          <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-800 text-xs sticky top-0">
+        <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden flex-1 overflow-y-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-muted border-b border-border text-foreground text-xs sticky top-0">
               <tr>
                 <th className="px-6 py-3 font-semibold uppercase tracking-wide">Note Title</th>
                 <th className="px-6 py-3 font-semibold uppercase tracking-wide">WEL Phrase</th>
@@ -120,24 +120,24 @@ function LibraryView({ notes }: { notes: AnalystNote[] }) {
                 <th className="px-6 py-3 font-semibold uppercase tracking-wide">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-border">
               {filtered.map((note) => (
-                <tr key={note.id} className="hover:bg-slate-50 transition">
+                <tr key={note.id} className="hover:bg-muted/50 transition">
                   <td className="px-6 py-4 max-w-xs">
-                    <div className="font-medium text-slate-900">{note.title}</div>
+                    <div className="font-medium text-foreground">{note.title}</div>
                     {note.commentary && (
-                      <div className="text-xs text-slate-400 mt-0.5 truncate font-meta">
+                      <div className="text-xs text-muted-foreground mt-0.5 truncate font-meta">
                         {note.commentary}
                       </div>
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    <code className="text-xs bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                    <code className="text-xs bg-muted px-1.5 py-0.5 rounded border border-border text-foreground">
                       {note.matchedPhrase}
                     </code>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="font-mono text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded border border-blue-100">
+                    <span className="font-mono text-xs bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-2 py-1 rounded border border-blue-200 dark:border-blue-800">
                       {note.kentRange[0]}–{note.kentRange[1]}%
                     </span>
                   </td>
@@ -147,17 +147,17 @@ function LibraryView({ notes }: { notes: AnalystNote[] }) {
                         {note.tags.split(',').map((tag, i) => (
                           <span
                             key={i}
-                            className="text-[10px] font-meta bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200"
+                            className="text-[10px] font-meta bg-muted text-muted-foreground px-2 py-0.5 rounded-full border border-border"
                           >
                             {tag.trim()}
                           </span>
                         ))}
                       </div>
                     ) : (
-                      <span className="text-slate-300">—</span>
+                      <span className="text-muted-foreground">—</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-xs font-meta text-slate-400 whitespace-nowrap">
+                  <td className="px-6 py-4 text-xs font-meta text-muted-foreground whitespace-nowrap">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" /> {note.date}
                     </span>
@@ -343,20 +343,23 @@ sourceText: text,
   const hasWorkspace = matches.length > 0 || sourceText.length > 0;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* ── Sidebar ── */}
       <aside
         className="w-60 flex flex-col shrink-0"
-        style={{ background: 'linear-gradient(180deg, #041627 0%, #0d1f2d 100%)' }}
+        style={{ 
+          background: 'linear-gradient(180deg, hsl(var(--sidebar-bg-start)) 0%, hsl(var(--sidebar-bg-end)) 100%)',
+          color: 'hsl(var(--sidebar-text))'
+        }}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center px-6 border-b border-white/10 shrink-0">
+        <div className="h-16 flex items-center px-6 border-b border-sidebar-border shrink-0">
           <ShieldAlert className="w-5 h-5 text-sky-300 shrink-0" />
           <div className="ml-3">
-            <p className="font-bold text-white text-sm leading-tight tracking-tight">
+            <p className="font-bold text-sidebar-text text-sm leading-tight tracking-tight">
               CTI Confidence
             </p>
-            <p className="text-white/30 text-[10px] font-meta mt-0.5">
+            <p className="text-sidebar-text-dim text-[10px] font-meta mt-0.5">
               Sherman Kent · WEL
             </p>
           </div>
@@ -385,27 +388,27 @@ sourceText: text,
           />
         </nav>
 
-{/* Footer buttons */}
-      <div className="p-3 border-t border-white/10 flex flex-col gap-0.5">
-        <button
-          onClick={() => setShowHistory(true)}
-          className="flex items-center gap-3 w-full text-white/40 hover:text-white transition-colors text-sm font-medium py-2 px-3 rounded hover:bg-white/8"
-        >
-          <History className="w-4 h-4 shrink-0" />
-          Analysis History
-        </button>
-        <button
-          onClick={() => setShowSettings(true)}
-          className="flex items-center gap-3 w-full text-white/40 hover:text-white transition-colors text-sm font-medium py-2 px-3 rounded hover:bg-white/8"
-        >
-          <Settings className="w-4 h-4 shrink-0" />
-          Model Settings
-        </button>
-        <div className="mt-2 pt-2 border-t border-white/10">
-          <ThemeToggle variant="select" className="[&_label]:text-white/60 [&_label]:text-xs" />
+        {/* Footer buttons */}
+        <div className="p-3 border-t border-sidebar-border flex flex-col gap-1.5">
+          <button
+            onClick={() => setShowHistory(true)}
+            className="flex items-center gap-3 w-full text-sidebar-text-dim hover:text-sidebar-text transition-colors text-sm font-medium py-2.5 px-3 rounded-lg hover:bg-sidebar-hover"
+          >
+            <History className="w-4 h-4 shrink-0" />
+            Analysis History
+          </button>
+          <button
+            onClick={() => setShowSettings(true)}
+            className="flex items-center gap-3 w-full text-sidebar-text-dim hover:text-sidebar-text transition-colors text-sm font-medium py-2.5 px-3 rounded-lg hover:bg-sidebar-hover"
+          >
+            <Settings className="w-4 h-4 shrink-0" />
+            Model Settings
+          </button>
+          <div className="mt-1 pt-3 border-t border-sidebar-border flex items-center justify-center">
+            <ThemeToggle variant="nav" />
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
 
       {/* ── Main content ── */}
       <main className="flex-1 overflow-hidden h-full">

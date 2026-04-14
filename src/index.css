@@ -45,59 +45,77 @@
     --tier-remote: 0 84% 60%;
     --tier-remote-bg: 0 84% 60% / 0.15;
 
-    /* Semantic colors */
-    --success: 142 76% 36%;
-    --warning: 38 92% 50%;
-    --error: 0 84% 60%;
-    --info: 201 96% 32%;
-  }
+/* Semantic colors */
+--success: 142 76% 36%;
+--warning: 38 92% 50%;
+--error: 0 84% 60%;
+--info: 201 96% 32%;
 
-  .dark {
-    /* Dark theme - Professional dark navy */
-    /* surface = #0f172a */
-    --background: 222 47% 11%;
-    /* on-surface = #f1f5f9 */
-    --foreground: 210 40% 98%;
-    /* surface-lowest = #1e293b */
-    --card: 217 33% 17%;
-    --card-foreground: 210 40% 98%;
-    /* primary = #94a3b8 */
-    --primary: 215 20% 65%;
-    --primary-foreground: 222 47% 11%;
-    /* secondary-container = #1e293b */
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    /* surface-low = #334155 */
-    --muted: 215 25% 27%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    /* Ghost border per design spec */
-    --border: 215 25% 27%;
-    --input: 217 33% 17%;
-    --ring: 215 20% 65%;
-    --radius: 0.375rem;
+/* Sidebar specific colors */
+--sidebar-bg-start: 211 81% 8%;
+--sidebar-bg-end: 211 70% 15%;
+--sidebar-text: 210 40% 98%;
+--sidebar-text-dim: 210 20% 65%;
+--sidebar-border: 215 25% 20%;
+--sidebar-hover: 215 25% 20%;
+--sidebar-active: 215 30% 30%;
+}
 
-    /* Tier colors - dark mode (brighter for visibility) */
-    --tier-certain: 142 71% 45%;
-    --tier-certain-bg: 142 71% 45% / 0.2;
-    --tier-probable: 84 81% 44%;
-    --tier-probable-bg: 84 81% 44% / 0.2;
-    --tier-even: 199 89% 48%;
-    --tier-even-bg: 199 89% 48% / 0.2;
-    --tier-unlikely: 35 92% 33%;
-    --tier-unlikely-bg: 35 92% 33% / 0.2;
-    --tier-remote: 0 91% 71%;
-    --tier-remote-bg: 0 91% 71% / 0.2;
+.dark {
+/* Dark theme - Professional dark navy with better contrast */
+/* surface = #0f172a (slightly lighter for better readability) */
+--background: 222 47% 11%;
+/* on-surface = #f1f5f9 (kept bright for contrast) */
+--foreground: 210 40% 98%;
+/* surface-lowest = #1e293b (card background) */
+--card: 217 33% 17%;
+--card-foreground: 210 40% 98%;
+/* primary = brighter blue for better visibility */
+--primary: 210 40% 80%;
+--primary-foreground: 222 47% 11%;
+/* secondary-container = #334155 (slightly lighter) */
+--secondary: 215 25% 27%;
+--secondary-foreground: 210 40% 98%;
+/* surface-low = #334155 (muted background) */
+--muted: 215 25% 27%;
+--muted-foreground: 215 20% 80%;
+--accent: 217 33% 25%;
+--accent-foreground: 210 40% 98%;
+--destructive: 0 84% 65%;
+--destructive-foreground: 0 0% 100%;
+/* Border with better visibility */
+--border: 215 25% 35%;
+--input: 217 33% 25%;
+--ring: 210 40% 80%;
+--radius: 0.375rem;
 
-    /* Semantic colors - dark mode */
-    --success: 142 71% 45%;
-    --warning: 38 92% 50%;
-    --error: 0 91% 71%;
-    --info: 199 89% 48%;
-  }
+/* Tier colors - dark mode (brighter for visibility) */
+--tier-certain: 142 71% 55%;
+--tier-certain-bg: 142 71% 45% / 0.25;
+--tier-probable: 84 81% 55%;
+--tier-probable-bg: 84 81% 44% / 0.25;
+--tier-even: 199 89% 60%;
+--tier-even-bg: 199 89% 48% / 0.25;
+--tier-unlikely: 35 92% 55%;
+--tier-unlikely-bg: 35 92% 33% / 0.25;
+--tier-remote: 0 91% 75%;
+--tier-remote-bg: 0 91% 71% / 0.25;
+
+/* Semantic colors - dark mode (enhanced brightness) */
+--success: 142 71% 55%;
+--warning: 38 92% 60%;
+--error: 0 91% 75%;
+--info: 199 89% 60%;
+
+/* Sidebar specific colors - dark mode */
+--sidebar-bg-start: 211 81% 8%;
+--sidebar-bg-end: 211 70% 15%;
+--sidebar-text: 210 40% 98%;
+--sidebar-text-dim: 210 20% 65%;
+--sidebar-border: 215 25% 25%;
+--sidebar-hover: 215 25% 25%;
+--sidebar-active: 215 30% 35%;
+}
 
   * {
     @apply border-border;

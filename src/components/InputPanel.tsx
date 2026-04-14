@@ -173,7 +173,7 @@ export function InputPanel({ onAnalyze, isAnalyzing }: Props) {
   const isBusy = loading || isAnalyzing;
 
   return (
-    <div className="bg-surface-low min-h-full">
+    <div className="bg-muted/30 min-h-full">
       <div className="max-w-3xl mx-auto px-8 py-10">
         <Tabs
           value={activeTab}
@@ -200,70 +200,70 @@ export function InputPanel({ onAnalyze, isAnalyzing }: Props) {
 
           <div className="flex gap-3 items-start">
             <div className="flex-1">
-              <TabsContent value="text">
-                <textarea
-                  value={textValue}
-                  onChange={(e) => setTextValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !isBusy) {
-                      handleAnalyze();
-                    }
-                  }}
-                  placeholder="Paste a report, assessment, or any text containing estimative language…"
-                  rows={4}
-                  className="w-full bg-surface-lowest border-0 border-b-2 border-border focus:border-primary transition-colors rounded-t-sm px-4 py-3 text-sm font-serif text-foreground placeholder:text-muted-foreground placeholder:font-meta focus:outline-none resize-none"
-                />
-              </TabsContent>
+          <TabsContent value="text">
+            <textarea
+              value={textValue}
+              onChange={(e) => setTextValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !isBusy) {
+                  handleAnalyze();
+                }
+              }}
+              placeholder="Paste a report, assessment, or any text containing estimative language…"
+              rows={4}
+              className="w-full bg-card border-0 border-b-2 border-border focus:border-primary transition-colors rounded-t-sm px-4 py-3 text-sm font-serif text-foreground placeholder:text-muted-foreground placeholder:font-meta focus:outline-none resize-none"
+            />
+          </TabsContent>
 
-              <TabsContent value="pdf">
-                <div
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={handleFileDrop}
-                  onClick={() => fileRef.current?.click()}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && pdfName && !isBusy) {
-                      e.preventDefault();
-                      handleAnalyze();
-                    }
-                  }}
-                  tabIndex={0}
-                  role="button"
-                  aria-label="Upload PDF file"
-                  className="w-full bg-surface-lowest border-0 border-b-2 border-dashed border-border hover:border-primary transition-colors rounded-t-sm px-4 py-8 text-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-                >
-                  <Upload className="w-7 h-7 text-muted-foreground/50 mx-auto mb-2" />
-                  {pdfName ? (
-                    <p className="text-sm font-meta text-foreground">{pdfName}</p>
-                  ) : (
-                    <>
-                      <p className="text-sm font-meta text-muted-foreground">Drop a PDF or click to browse</p>
-                      <p className="text-xs font-meta text-muted-foreground/60 mt-1">Text extracted client-side</p>
-                    </>
-                  )}
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept="application/pdf"
-                    className="hidden"
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) setPdfName(f.name);
-                      clearError();
-                    }}
-                  />
-                </div>
-              </TabsContent>
+          <TabsContent value="pdf">
+            <div
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleFileDrop}
+              onClick={() => fileRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && pdfName && !isBusy) {
+                  e.preventDefault();
+                  handleAnalyze();
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-label="Upload PDF file"
+              className="w-full bg-card border-0 border-b-2 border-dashed border-border hover:border-primary transition-colors rounded-t-sm px-4 py-8 text-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            >
+              <Upload className="w-7 h-7 text-muted-foreground/50 mx-auto mb-2" />
+              {pdfName ? (
+                <p className="text-sm font-meta text-foreground">{pdfName}</p>
+              ) : (
+                <>
+                  <p className="text-sm font-meta text-muted-foreground">Drop a PDF or click to browse</p>
+                  <p className="text-xs font-meta text-muted-foreground/60 mt-1">Text extracted client-side</p>
+                </>
+              )}
+              <input
+                ref={fileRef}
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) setPdfName(f.name);
+                  clearError();
+                }}
+              />
+            </div>
+          </TabsContent>
 
-              <TabsContent value="url">
-                <input
-                  type="url"
-                  value={urlValue}
-                  onChange={(e) => setUrlValue(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && !isBusy && handleAnalyze()}
-                  placeholder="https://example.com/intelligence-report"
-                  className="w-full bg-surface-lowest border-0 border-b-2 border-border focus:border-primary transition-colors rounded-t-sm px-4 py-3 text-sm font-meta text-foreground placeholder:text-muted-foreground focus:outline-none"
-                />
-              </TabsContent>
+          <TabsContent value="url">
+            <input
+              type="url"
+              value={urlValue}
+              onChange={(e) => setUrlValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && !isBusy && handleAnalyze()}
+              placeholder="https://example.com/intelligence-report"
+              className="w-full bg-card border-0 border-b-2 border-border focus:border-primary transition-colors rounded-t-sm px-4 py-3 text-sm font-meta text-foreground placeholder:text-muted-foreground focus:outline-none"
+            />
+          </TabsContent>
 
               <TabsContent value="batch">
                 {showBatchResults && batchProgress.completed > 0 ? (
@@ -282,22 +282,24 @@ export function InputPanel({ onAnalyze, isAnalyzing }: Props) {
               </TabsContent>
             </div>
 
-            {activeTab !== 'batch' && (
-              <Button
-                onClick={handleAnalyze}
-                disabled={isBusy}
-                className="shrink-0 mt-0.5"
-              >
-                {isBusy ? (
-                  <>
-                    <Loader className="w-4 h-4 animate-spin" />
-                    {loading ? 'Extracting…' : 'Analyzing…'}
-                  </>
-                ) : (
-                  'Analyze'
-                )}
-              </Button>
-            )}
+          {activeTab !== 'batch' && (
+            <Button
+              variant="accent"
+              size="lg"
+              onClick={handleAnalyze}
+              disabled={isBusy}
+              className="shrink-0 mt-1 font-semibold"
+            >
+              {isBusy ? (
+                <>
+                  <Loader className="w-4 h-4 animate-spin" />
+                  {loading ? 'Extracting…' : 'Analyzing…'}
+                </>
+              ) : (
+                'Analyze'
+              )}
+            </Button>
+          )}
           </div>
 
           {error && (
