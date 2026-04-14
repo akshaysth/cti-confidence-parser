@@ -522,7 +522,7 @@ onCancel={() => setActiveMatchId(null)}
                   >
                     <div className="flex justify-between items-start mb-1.5">
                       <h4 className="font-semibold text-foreground text-sm leading-snug">{note.title}</h4>
-                      <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded border-input shrink-0 ml-2">
+                      <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded border border-input shrink-0 ml-2">
                         {note.kentRange[0]}–{note.kentRange[1]}%
                       </span>
                     </div>
