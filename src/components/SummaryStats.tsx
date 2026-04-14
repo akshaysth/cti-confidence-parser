@@ -78,6 +78,25 @@ export function SummaryStats({ matches }: Props) {
     tier,
   }));
 
+  // Get computed CSS variable values for Recharts
+  const getTooltipStyle = () => {
+    if (typeof window === 'undefined') {
+      return {
+        background: '#ffffff',
+        border: '1px solid #e5e7eb',
+        color: '#191c1e',
+      };
+    }
+    const style = getComputedStyle(document.documentElement);
+    return {
+      background: `hsl(${style.getPropertyValue('--card')})`,
+      border: `1px solid hsl(${style.getPropertyValue('--border')})`,
+      color: `hsl(${style.getPropertyValue('--foreground')})`,
+    };
+  };
+
+  const tooltipStyle = getTooltipStyle();
+
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
       <StatCard
@@ -107,22 +126,26 @@ export function SummaryStats({ matches }: Props) {
           <BarChart data={tierData} barSize={12} margin={{ top: 0, right: 0, left: -28, bottom: 0 }}>
             <XAxis
               dataKey="name"
-              tick={{ fill: '#9ca3af', fontSize: 8, fontFamily: 'Inter' }}
+              tick={{ 
+                fill: 'hsl(var(--muted-foreground))', 
+                fontSize: 8, 
+                fontFamily: 'Inter' 
+              }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis hide allowDecimals={false} />
             <Tooltip
               contentStyle={{
-                background: '#ffffff',
-                border: '1px solid #e5e7eb',
+                background: tooltipStyle.background,
+                border: tooltipStyle.border,
                 borderRadius: 4,
                 fontSize: 11,
                 fontFamily: 'Inter',
                 boxShadow: '0 4px 12px rgba(4,22,39,0.08)',
               }}
-              itemStyle={{ color: '#191c1e' }}
-              cursor={{ fill: 'rgba(4,22,39,0.04)' }}
+              itemStyle={{ color: tooltipStyle.color }}
+              cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
             />
             <Bar dataKey="count" radius={[2, 2, 0, 0]}>
               {tierData.map((d) => (
