@@ -22,6 +22,23 @@ interface Props {
 }
 
 export function VisualizationPanel({ matches }: Props) {
+  // Helper to get CSS variable values for Recharts
+  const getCSSVar = (name: string, fallback: string): string => {
+    if (typeof window === 'undefined') return fallback;
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+  };
+
+  const getDarkModeColors = () => {
+    const style = getComputedStyle(document.documentElement);
+    const isDark = document.documentElement.classList.contains('dark');
+    return {
+      grid: isDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb',
+      text: isDark ? style.getPropertyValue('--foreground').trim() || '#f1f5f9' : '#64748b',
+      background: isDark ? style.getPropertyValue('--card').trim() || '#1e293b' : '#ffffff',
+      border: isDark ? style.getPropertyValue('--border').trim() || '#334155' : '#e5e7eb',
+    };
+  };
+
   // Tier distribution data for pie chart
   const tierData = useMemo(() => {
     const distribution: Record<string, number> = {};
@@ -57,10 +74,11 @@ export function VisualizationPanel({ matches }: Props) {
       if (range) range.count++;
     });
 
+    const emptyFill = getCSSVar('--muted', '#e2e8f0');
     return ranges.map((r) => ({
       range: r.range,
       count: r.count,
-      fill: r.count > 0 ? '#3b82f6' : '#e2e8f0',
+      fill: r.count > 0 ? '#3b82f6' : emptyFill,
     }));
   }, [matches]);
 
@@ -111,50 +129,50 @@ export function VisualizationPanel({ matches }: Props) {
     };
   }, [matches]);
 
-  if (matches.length === 0) {
-    return (
-      <div className="p-8 text-center text-slate-400">
-        <p>No data to visualize. Run an analysis first.</p>
-      </div>
-    );
-  }
+if (matches.length === 0) {
+  return (
+    <div className="p-8 text-center text-muted-foreground">
+      <p>No data to visualize. Run an analysis first.</p>
+    </div>
+  );
+}
 
   return (
     <div className="space-y-6">
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-5 gap-3">
-        <StatCard label="Total" value={stats.total} color="bg-slate-100" textColor="text-slate-700" />
-        <StatCard
-          label="Validated"
-          value={stats.validated}
-          color="bg-blue-50"
-          textColor="text-blue-700"
-        />
-        <StatCard
-          label="Confirmed"
-          value={stats.confirmed}
-          color="bg-emerald-50"
-          textColor="text-emerald-700"
-        />
-        <StatCard
-          label="Pending"
-          value={stats.pending}
-          color="bg-amber-50"
-          textColor="text-amber-700"
-        />
-        <StatCard
-          label="Avg Model Conf"
-          value={`${stats.avgConfidence}%`}
-          color="bg-purple-50"
-          textColor="text-purple-700"
-        />
-      </div>
+  {/* Statistics Cards */}
+  <div className="grid grid-cols-5 gap-3">
+    <StatCard label="Total" value={stats.total} bgClass="bg-muted" textClass="text-foreground" />
+    <StatCard
+      label="Validated"
+      value={stats.validated}
+      bgClass="bg-blue-50 dark:bg-blue-900/20"
+      textClass="text-blue-700 dark:text-blue-400"
+    />
+    <StatCard
+      label="Confirmed"
+      value={stats.confirmed}
+      bgClass="bg-emerald-50 dark:bg-emerald-900/20"
+      textClass="text-emerald-700 dark:text-emerald-400"
+    />
+    <StatCard
+      label="Pending"
+      value={stats.pending}
+      bgClass="bg-amber-50 dark:bg-amber-900/20"
+      textClass="text-amber-700 dark:text-amber-400"
+    />
+    <StatCard
+      label="Avg Model Conf"
+      value={`${stats.avgConfidence}%`}
+      bgClass="bg-purple-50 dark:bg-purple-900/20"
+      textClass="text-purple-700 dark:text-purple-400"
+    />
+  </div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-2 gap-6">
-        {/* Tier Distribution Pie Chart */}
-        <div className="bg-white border border-slate-200 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-slate-800 mb-4">Tier Distribution</h3>
+  {/* Charts Grid */}
+  <div className="grid grid-cols-2 gap-6">
+    {/* Tier Distribution Pie Chart */}
+    <div className="bg-card border border-border rounded-lg p-4">
+      <h3 className="text-sm font-medium text-foreground mb-4">Tier Distribution</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -172,39 +190,54 @@ export function VisualizationPanel({ matches }: Props) {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip contentStyle={{ 
+                  backgroundColor: 'hsl(var(--card))', 
+                  border: '1px solid hsl(var(--border))',
+                  color: 'hsl(var(--foreground))',
+                  borderRadius: '0.375rem'
+                }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Confidence Distribution Bar Chart */}
-        <div className="bg-white border border-slate-200 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-slate-800 mb-4">Kent Confidence Distribution</h3>
+  {/* Confidence Distribution Bar Chart */}
+  <div className="bg-card border border-border rounded-lg p-4">
+    <h3 className="text-sm font-medium text-foreground mb-4">Kent Confidence Distribution</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={confidenceData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="range" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" stroke={getDarkModeColors().grid} />
+                <XAxis dataKey="range" tick={{ fontSize: 11, fill: getDarkModeColors().text }} />
+                <YAxis tick={{ fontSize: 11, fill: getDarkModeColors().text }} />
+                <Tooltip contentStyle={{ 
+                  backgroundColor: 'hsl(var(--card))', 
+                  border: '1px solid hsl(var(--border))',
+                  color: 'hsl(var(--foreground))',
+                  borderRadius: '0.375rem'
+                }} />
                 <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Model Confidence Chart (if available) */}
-        {modelConfidenceData.length > 0 && (
-          <div className="bg-white border border-slate-200 rounded-lg p-4 col-span-2">
-            <h3 className="text-sm font-medium text-slate-800 mb-4">Model Confidence Distribution</h3>
+  {/* Model Confidence Chart (if available) */}
+  {modelConfidenceData.length > 0 && (
+    <div className="bg-card border border-border rounded-lg p-4 col-span-2">
+      <h3 className="text-sm font-medium text-foreground mb-4">Model Confidence Distribution</h3>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={modelConfidenceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="range" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke={getDarkModeColors().grid} />
+                  <XAxis dataKey="range" tick={{ fontSize: 11, fill: getDarkModeColors().text }} />
+                  <YAxis tick={{ fontSize: 11, fill: getDarkModeColors().text }} />
+                  <Tooltip contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))',
+                    color: 'hsl(var(--foreground))',
+                    borderRadius: '0.375rem'
+                  }} />
                   <Bar dataKey="count" fill="#10b981" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -219,18 +252,18 @@ export function VisualizationPanel({ matches }: Props) {
 function StatCard({
   label,
   value,
-  color,
-  textColor,
+  bgClass,
+  textClass,
 }: {
   label: string;
   value: string | number;
-  color: string;
-  textColor: string;
+  bgClass: string;
+  textClass: string;
 }) {
   return (
-    <div className={cn('rounded-lg p-3 text-center', color)}>
-      <p className={cn('text-2xl font-bold', textColor)}>{value}</p>
-      <p className="text-xs text-slate-600 mt-0.5">{label}</p>
+    <div className={cn('rounded-lg p-3 text-center', bgClass)}>
+      <p className={cn('text-2xl font-bold', textClass)}>{value}</p>
+      <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
     </div>
   );
 }
